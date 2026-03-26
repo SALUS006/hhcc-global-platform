@@ -1,0 +1,67 @@
+openapi: 3.0.0
+info:
+  title: HHCC Facility & Scheduling Service API
+  version: 1.0.0
+  description: API for managing Care Centers and booking schedules.
+servers:
+  - url: http://ms-scheduling-service:8080/api/v1
+paths:
+  /facilities:
+    get:
+      summary: Retrieve all facilities.
+      responses:
+        '200':
+          description: A list of Care Facilities.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CareFacility'
+  /bookings:
+    post:
+      summary: Create a care booking appointment.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CareBooking'
+      responses:
+        '201':
+          description: Booking created successfully.
+          
+components:
+  schemas:
+    CareFacility:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        facilityName:
+          type: string
+        locationAddress:
+          type: string
+        isActive:
+          type: boolean
+    CareBooking:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        facilityId:
+          type: integer
+          format: int64
+        pickupTime:
+          type: string
+          format: date-time
+        dropoffTime:
+          type: string
+          format: date-time
+        status:
+          type: string

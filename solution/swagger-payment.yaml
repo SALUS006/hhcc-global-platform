@@ -1,0 +1,54 @@
+openapi: 3.0.0
+info:
+  title: HHCC Payment MVP Service API
+  version: 1.0.0
+  description: MVP scoped API for validating mock payment invoices triggered by confirmed bookings.
+servers:
+  - url: http://ms-payment-service:8080/api/v1
+paths:
+  /payments:
+    post:
+      summary: Simulate payment capture (MVP mocked)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentInvoice'
+      responses:
+        '201':
+          description: Payment mock successfully captured.
+  /payments/{bookingId}:
+    get:
+      summary: Retrieve the payment status of a booking.
+      parameters:
+        - in: path
+          name: bookingId
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Contains the invoice payload.
+          
+components:
+  schemas:
+    PaymentInvoice:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        bookingId:
+          type: integer
+          format: int64
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+          default: USD
+        status:
+          type: string
+          default: Unpaid
