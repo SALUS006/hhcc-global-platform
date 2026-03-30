@@ -2,48 +2,232 @@ openapi: 3.0.0
 info:
   title: HHCC Facility & Scheduling Service API
   version: 1.0.0
-  description: API for managing Care Centers and booking schedules.
+  description: >
+    API for managing Care Facility listings and booking schedules for the
+    Helping Hands Care Center platform. Handles pick-up/drop-off appointments
+    for family members (childcare/elderly) and pets.
+    Note: Only /health is currently live. All other routes are planned for Days 2-3.
 servers:
-  - url: http://ms-scheduling-service:8080/api/v1
+  - url: http://localhost:8081/api/v1
+    description: Local Docker deployment
+  - url: http://ms-scheduling-service:8081/api/v1
+    description: Internal Docker network
+
+# ─────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────
 paths:
+
+  # ── Health ──────────────────────────────────────────────────
   /scheduling/health:
     get:
-      summary: Health check endpoint returning Service and DB status
+      tags: [Health]
+      summary: Health check — returns service and database status
       responses:
         '200':
-          description: Service and DB status
+          description: Service is UP and DB is CONNECTED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                service: UP
+                database: CONNECTED
+        '503':
+          description: DB DISCONNECTED
           content:
             application/json:
               example:
                 service: UP
-                database: CONNECTED
-  /facilities:
+                database: DISCONNECTED
+                error: "Communications link failure"
+
+  # ── Care Facilities ──────────────────────────────────────────
+  /scheduling/facilities:
     get:
-      summary: Retrieve all facilities.
+      tags: [Care Facilities]
+      summary: List all active care facilities — populates the Home Screen (UC#1)
+      parameters:
+        - name: careType
+          in: query
+          required: false
+          description: Filter facilities by supported care type
+          schema:
+            type: string
+            enum: [CHILDCARE, PET, ELDERLY]
       responses:
         '200':
-          description: A list of Care Facilities.
+          description: Array of care facilities
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/CareFacility'
-  /bookings:
+
+  /scheduling/facilities/{id}:
+    get:
+      tags: [Care Facilities]
+      summary: Get details of a specific care facility
+      parameters:
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Facility details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CareFacility'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Bookings ─────────────────────────────────────────────────
+  /scheduling/bookings:
     post:
-      summary: Create a care booking appointment.
+      tags: [Bookings]
+      summary: Create a care booking appointment (UC#7 — family, UC#8 — pet)
+      description: >
+        Creates a booking for a care appointment. The `dependentType` field
+        determines if the booking is for a FAMILY_MEMBER or a PET.
+        The `dependentId` references either a family_member.id or pet_profile.id.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CareBooking'
+              $ref: '#/components/schemas/CareBookingRequest'
+            examples:
+              childcareBooking:
+                summary: Childcare booking for a family member
+                value:
+                  userId: 2
+                  facilityId: 1
+                  careType: CHILDCARE
+                  dependentType: FAMILY_MEMBER
+                  dependentId: 1
+                  pickupTime: "2026-04-05T08:00:00"
+                  dropoffTime: "2026-04-05T17:00:00"
+                  notes: "Please bring sunscreen"
+              petBooking:
+                summary: Pet daycare booking
+                value:
+                  userId: 2
+                  facilityId: 2
+                  careType: PET
+                  dependentType: PET
+                  dependentId: 1
+                  pickupTime: "2026-04-06T09:00:00"
+                  dropoffTime: "2026-04-06T18:00:00"
+                  notes: "Buddy needs his midday walk"
       responses:
         '201':
-          description: Booking created successfully.
-          
+          description: Booking created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CareBooking'
+
+  /scheduling/bookings/{userId}:
+    get:
+      tags: [Bookings]
+      summary: List all bookings for a specific user (UC#7, UC#8)
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - name: status
+          in: query
+          required: false
+          description: Filter by booking status
+          schema:
+            type: string
+            enum: [PENDING, CONFIRMED, COMPLETED, CANCELLED]
+      responses:
+        '200':
+          description: Array of care bookings for this user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CareBooking'
+
+  /scheduling/bookings/{userId}/{id}:
+    get:
+      tags: [Bookings]
+      summary: Get a single booking by ID
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Booking details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CareBooking'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Bookings]
+      summary: Cancel a booking
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Booking cancelled
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# ─────────────────────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────────────────────
 components:
+
+  parameters:
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          example:
+            status: 404
+            error: "Not Found"
+
   schemas:
+
+    HealthResponse:
+      type: object
+      properties:
+        service:
+          type: string
+          example: UP
+        database:
+          type: string
+          example: CONNECTED
+
     CareFacility:
       type: object
       properties:
@@ -54,8 +238,51 @@ components:
           type: string
         locationAddress:
           type: string
+        description:
+          type: string
+        photoUrl:
+          type: string
+        supportedCareTypes:
+          type: string
+          example: "CHILDCARE,PET,ELDERLY"
         isActive:
           type: boolean
+        createdBy:
+          type: integer
+          format: int64
+        updatedBy:
+          type: integer
+          format: int64
+
+    CareBookingRequest:
+      type: object
+      required: [userId, facilityId, careType, dependentType, dependentId, pickupTime, dropoffTime]
+      properties:
+        userId:
+          type: integer
+          format: int64
+        facilityId:
+          type: integer
+          format: int64
+        careType:
+          type: string
+          enum: [CHILDCARE, PET, ELDERLY]
+        dependentType:
+          type: string
+          enum: [FAMILY_MEMBER, PET]
+        dependentId:
+          type: integer
+          format: int64
+          description: References family_member.id or pet_profile.id based on dependentType
+        pickupTime:
+          type: string
+          format: date-time
+        dropoffTime:
+          type: string
+          format: date-time
+        notes:
+          type: string
+
     CareBooking:
       type: object
       properties:
@@ -68,6 +295,15 @@ components:
         facilityId:
           type: integer
           format: int64
+        careType:
+          type: string
+          enum: [CHILDCARE, PET, ELDERLY]
+        dependentType:
+          type: string
+          enum: [FAMILY_MEMBER, PET]
+        dependentId:
+          type: integer
+          format: int64
         pickupTime:
           type: string
           format: date-time
@@ -76,3 +312,12 @@ components:
           format: date-time
         status:
           type: string
+          enum: [PENDING, CONFIRMED, COMPLETED, CANCELLED]
+        notes:
+          type: string
+        createdBy:
+          type: integer
+          format: int64
+        updatedBy:
+          type: integer
+          format: int64

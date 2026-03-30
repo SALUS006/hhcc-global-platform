@@ -1,50 +1,178 @@
 openapi: 3.0.0
 info:
-  title: HHCC Payment MVP Service API
+  title: HHCC Payment Service API
   version: 1.0.0
-  description: MVP scoped API for validating mock payment invoices triggered by confirmed bookings.
+  description: >
+    MVP-scoped API for capturing and tracking mock payment invoices
+    triggered by confirmed care bookings.
+    Real payment gateway integration (Stripe/PayPal) is deferred to post-MVP.
+    Note: Only /health is currently live. Invoice routes are planned for Days 2-3.
 servers:
-  - url: http://ms-payment-service:8080/api/v1
+  - url: http://localhost:8082/api/v1
+    description: Local Docker deployment
+  - url: http://ms-payment-service:8082/api/v1
+    description: Internal Docker network
+
+# ─────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────
 paths:
+
+  # ── Health ──────────────────────────────────────────────────
   /payment/health:
     get:
-      summary: Health check endpoint returning Service and DB status
+      tags: [Health]
+      summary: Health check — returns service and database status
       responses:
         '200':
-          description: Service and DB status
+          description: Service is UP and DB is CONNECTED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                service: UP
+                database: CONNECTED
+        '503':
+          description: DB DISCONNECTED
           content:
             application/json:
               example:
                 service: UP
-                database: CONNECTED
-  /payments:
+                database: DISCONNECTED
+                error: "Communications link failure"
+
+  # ── Invoices ─────────────────────────────────────────────────
+  /payment/invoices:
     post:
-      summary: Simulate payment capture (MVP mocked)
+      tags: [Invoices]
+      summary: Submit a mock payment for a booking (UC#9)
+      description: >
+        Captures a payment request for a given booking. In the MVP, all
+        payments are mocked (paymentMethod = MOCK) and immediately resolved.
+        Real Stripe/PayPal integration is a post-MVP enhancement.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PaymentInvoice'
+              $ref: '#/components/schemas/PaymentInvoiceRequest'
+            example:
+              bookingId: 1
+              amount: 120.00
+              currency: USD
+              paymentMethod: MOCK
       responses:
         '201':
-          description: Payment mock successfully captured.
-  /payments/{bookingId}:
+          description: Payment invoice created and mock payment processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInvoice'
+              example:
+                id: 1
+                bookingId: 1
+                amount: 120.00
+                currency: USD
+                paymentMethod: MOCK
+                status: PAID
+        '400':
+          description: Invalid request payload
+        '404':
+          description: Booking not found
+
+  /payment/invoices/{bookingId}:
     get:
-      summary: Retrieve the payment status of a booking.
+      tags: [Invoices]
+      summary: Get the payment invoice for a booking (UC#9)
       parameters:
-        - in: path
-          name: bookingId
+        - name: bookingId
+          in: path
+          required: true
+          description: ID of the care booking to retrieve the invoice for
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Invoice found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInvoice'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /payment/invoices/{id}/refund:
+    post:
+      tags: [Invoices]
+      summary: Refund a payment invoice (post-MVP, stub endpoint)
+      description: >
+        Marks a paid invoice as REFUNDED. MVP implementation is mocked only.
+      parameters:
+        - name: id
+          in: path
           required: true
           schema:
             type: integer
             format: int64
       responses:
         '200':
-          description: Contains the invoice payload.
-          
+          description: Invoice refunded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInvoice'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# ─────────────────────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────────────────────
 components:
+
+  responses:
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          example:
+            status: 404
+            error: "Not Found"
+
   schemas:
+
+    HealthResponse:
+      type: object
+      properties:
+        service:
+          type: string
+          example: UP
+        database:
+          type: string
+          example: CONNECTED
+
+    PaymentInvoiceRequest:
+      type: object
+      required: [bookingId, amount]
+      properties:
+        bookingId:
+          type: integer
+          format: int64
+          description: References care_booking.id
+        amount:
+          type: number
+          format: double
+          example: 120.00
+        currency:
+          type: string
+          default: USD
+          example: USD
+        paymentMethod:
+          type: string
+          enum: [MOCK, CREDIT_CARD, PAYPAL]
+          default: MOCK
+
     PaymentInvoice:
       type: object
       properties:
@@ -59,7 +187,20 @@ components:
           format: double
         currency:
           type: string
-          default: USD
+          example: USD
+        paymentDate:
+          type: string
+          format: date-time
+          nullable: true
+        paymentMethod:
+          type: string
+          enum: [MOCK, CREDIT_CARD, PAYPAL]
         status:
           type: string
-          default: Unpaid
+          enum: [UNPAID, PAID, REFUNDED]
+        createdBy:
+          type: integer
+          format: int64
+        updatedBy:
+          type: integer
+          format: int64

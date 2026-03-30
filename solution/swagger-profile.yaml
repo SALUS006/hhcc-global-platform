@@ -1,28 +1,56 @@
 openapi: 3.0.0
 info:
-  title: HHCC Profile Service API
+  title: HHCC Profile & Identity Service API
   version: 1.0.0
-  description: API for managing user identity and profiles globally.
+  description: >
+    API for managing user identity, profiles, family members, and pet profiles
+    for the Helping Hands Care Center platform.
+    All endpoints are exposed at http://ms-profile-service:8080.
+    The Node.js Orchestrator proxies these via /api/profile/** to the Angular UI.
+    For direct testing, pass the mock user id as a path variable (userId).
 servers:
+  - url: http://localhost:8080/api/v1
+    description: Local Docker deployment
   - url: http://ms-profile-service:8080/api/v1
+    description: Internal Docker network
+
+# ─────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────
 paths:
+
+  # ── Health ──────────────────────────────────────────────────
   /profiles/health:
     get:
-      summary: Health check endpoint returning Service and DB status
+      tags: [Health]
+      summary: Health check — returns service and database status
       responses:
         '200':
-          description: Service and DB status
+          description: Service is UP and DB is CONNECTED
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                service: UP
+                database: CONNECTED
+        '503':
+          description: Service is UP but DB is DISCONNECTED
           content:
             application/json:
               example:
                 service: UP
-                database: CONNECTED
+                database: DISCONNECTED
+                error: "Communications link failure"
+
+  # ── User Profiles ────────────────────────────────────────────
   /profiles:
     get:
-      summary: Retrieve all profiles
+      tags: [User Profiles]
+      summary: List all user profiles (UC#2 support)
       responses:
         '200':
-          description: A list of profiles.
+          description: Array of user profiles
           content:
             application/json:
               schema:
@@ -30,19 +58,252 @@ paths:
                 items:
                   $ref: '#/components/schemas/UserProfile'
     post:
-      summary: Create a new user profile
+      tags: [User Profiles]
+      summary: Register a new user profile (UC#2)
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserProfile'
+              $ref: '#/components/schemas/UserProfileRequest'
+            example:
+              fullName: "Jane Doe"
+              email: "jane.doe@email.com"
+              role: "CUSTOMER"
+              contactNumber: "555-0199"
       responses:
         '201':
-          description: Created
-          
+          description: User profile created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+  # ── Family Members ───────────────────────────────────────────
+  /profiles/{userId}/family-members:
+    get:
+      tags: [Family Members]
+      summary: List all family members for a user (UC#4)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Array of family members
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FamilyMember'
+    post:
+      tags: [Family Members]
+      summary: Add a new family member to the user's profile (UC#3)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FamilyMemberRequest'
+            example:
+              fullName: "Tommy Doe"
+              relationship: "Child"
+              dateOfBirth: "2018-04-12"
+              careType: "CHILDCARE"
+              medicalNotes: "No known allergies"
+      responses:
+        '201':
+          description: Family member created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyMember'
+
+  /profiles/{userId}/family-members/{id}:
+    get:
+      tags: [Family Members]
+      summary: Get a single family member by ID (UC#4)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Family member found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyMember'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Family Members]
+      summary: Update an existing family member (UC#4)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FamilyMemberRequest'
+      responses:
+        '200':
+          description: Family member updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FamilyMember'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Family Members]
+      summary: Remove a family member from the user's profile (UC#4)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Family member deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ── Pet Profiles ─────────────────────────────────────────────
+  /profiles/{userId}/pets:
+    get:
+      tags: [Pets]
+      summary: List all pets for a user (UC#6)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      responses:
+        '200':
+          description: Array of pet profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PetProfile'
+    post:
+      tags: [Pets]
+      summary: Add a new pet to the user's profile (UC#5)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetProfileRequest'
+            example:
+              petName: "Buddy"
+              species: "Dog"
+              breed: "Golden Retriever"
+              ageYears: 3
+              medicalNotes: "Up to date on all vaccinations"
+      responses:
+        '201':
+          description: Pet profile created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetProfile'
+
+  /profiles/{userId}/pets/{id}:
+    get:
+      tags: [Pets]
+      summary: Get a single pet by ID (UC#6)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '200':
+          description: Pet found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetProfile'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Pets]
+      summary: Update an existing pet profile (UC#6)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/ResourceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PetProfileRequest'
+      responses:
+        '200':
+          description: Pet profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PetProfile'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Pets]
+      summary: Remove a pet from the user's profile (UC#6)
+      parameters:
+        - $ref: '#/components/parameters/UserId'
+        - $ref: '#/components/parameters/ResourceId'
+      responses:
+        '204':
+          description: Pet deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+# ─────────────────────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────────────────────
 components:
+
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      description: ID of the authenticated user (account owner)
+      schema:
+        type: integer
+        format: int64
+    ResourceId:
+      name: id
+      in: path
+      required: true
+      description: ID of the resource
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+    NotFound:
+      description: Resource not found or not owned by this user
+      content:
+        application/json:
+          example:
+            status: 404
+            error: "Not Found"
+            message: "Resource not found"
+
   schemas:
+
+    HealthResponse:
+      type: object
+      properties:
+        service:
+          type: string
+          example: UP
+        database:
+          type: string
+          example: CONNECTED
+
     UserProfile:
       type: object
       properties:
@@ -53,8 +314,11 @@ components:
           type: string
         email:
           type: string
+        passwordHash:
+          type: string
         role:
           type: string
+          enum: [ADMIN, CUSTOMER, STAFF]
         contactNumber:
           type: string
         createdBy:
@@ -63,3 +327,114 @@ components:
         updatedBy:
           type: integer
           format: int64
+
+    UserProfileRequest:
+      type: object
+      required: [fullName, email, role]
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, CUSTOMER, STAFF]
+        contactNumber:
+          type: string
+        createdBy:
+          type: integer
+          format: int64
+        updatedBy:
+          type: integer
+          format: int64
+
+    FamilyMember:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        fullName:
+          type: string
+        relationship:
+          type: string
+          enum: [Child, Spouse, Parent, Sibling, Other]
+        dateOfBirth:
+          type: string
+          format: date
+          example: "2018-04-12"
+        careType:
+          type: string
+          enum: [CHILDCARE, ELDERLY]
+        medicalNotes:
+          type: string
+        createdBy:
+          type: integer
+          format: int64
+        updatedBy:
+          type: integer
+          format: int64
+
+    FamilyMemberRequest:
+      type: object
+      required: [fullName, relationship, careType]
+      properties:
+        fullName:
+          type: string
+        relationship:
+          type: string
+          enum: [Child, Spouse, Parent, Sibling, Other]
+        dateOfBirth:
+          type: string
+          format: date
+        careType:
+          type: string
+          enum: [CHILDCARE, ELDERLY]
+        medicalNotes:
+          type: string
+
+    PetProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        userId:
+          type: integer
+          format: int64
+        petName:
+          type: string
+        species:
+          type: string
+          enum: [Dog, Cat, Bird, Other]
+        breed:
+          type: string
+        ageYears:
+          type: integer
+        medicalNotes:
+          type: string
+        createdBy:
+          type: integer
+          format: int64
+        updatedBy:
+          type: integer
+          format: int64
+
+    PetProfileRequest:
+      type: object
+      required: [petName, species]
+      properties:
+        petName:
+          type: string
+        species:
+          type: string
+          enum: [Dog, Cat, Bird, Other]
+        breed:
+          type: string
+        ageYears:
+          type: integer
+        medicalNotes:
+          type: string

@@ -1,0 +1,26 @@
+# ─── Maven Build Output ───────────────────────────────────────
+**/target/
+**/target/**
+
+# ─── IDE / Editor Files ───────────────────────────────────────
+.idea/
+*.iml
+.vscode/
+*.suo
+*.user
+
+# ─── Node.js ──────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+dist/
+
+# ─── Angular Build Output ─────────────────────────────────────
+angular-ui/dist/
+
+# ─── OS Files ─────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ─── Environment / Secrets ────────────────────────────────────
+.env
+*.env.local
