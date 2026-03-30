@@ -31,7 +31,7 @@ graph TD
     end
     
     %% Data Layer
-    DB[("Central Database (PostgreSQL/MySQL)")]
+    DB[("Central Database (MySQL 8.0)")]
     
     %% Relationships
     UI -->|REST| ORCH1
@@ -67,7 +67,7 @@ graph TD
 | **Frontend UI** | Angular | Angular 18+ |
 | **Orchestration** | Node.js (Express/NestJS) | Node.js v22+ |
 | **Business Logic**| Java (Build: Maven) | Java 25 & Spring Boot 3+ |
-| **Database** | SQL RDBMS | PostgreSQL 16+ or MySQL 8+ |
+| **Database** | SQL RDBMS | MySQL 8+ |
 
 ### 3.1 Presentation Layer (Angular)
 - **Framework**: Angular 18+
@@ -106,7 +106,7 @@ Given the 2-week timeframe requirement to deliver maximum 2-3 microservices, we 
 - **Responsibilities**: Captures payment requests and tracks status against bookings. Actual end-to-end third-party payment integration (e.g., Stripe, PayPal) is scheduled for the final production implementation; the 1-week MVP will strictly utilize mock payment success responses to hit showcase deadlines.
 
 ### 3.4 Database Layer (Single RDBMS)
-- **DBMS**: PostgreSQL or MySQL
+- **DBMS**: MySQL
 - **Responsibility**: A single, shared database engine.
 - **Data Modeling (Single Schema)**: To radically simplify database interactions while maintaining independent components, the application will operate out of a **single unified schema**. The distinct tables will be designed and logically grouped by functionality (e.g., `tbl_user_profile`, `tbl_care_booking`, `tbl_invoice`), but all 3 Spring Boot microservices will connect directly to this single shared environment.
 
@@ -154,7 +154,7 @@ Ensure environmental consistency from localhost to the final demo space:
 ### 6.3 Local Demo Orchestration (Docker Compose)
 To provide the easiest working demo at the end of the assignment, the team should assemble a root `docker-compose.yml` file spanning the entire application stack:
 1. Triggers the build for the Angular Web Container, the Node.js Orchestrator Container, and the 3 Spring Boot Microservice Containers.
-2. Spins up the standard RDBMS instance (e.g., PostgreSQL).
+2. Spins up the standard RDBMS instance (MySQL).
 3. Configures a shared internal docker network allowing the Node.js API to discover the Spring Boot services locally via DNS names (e.g., `http://ms-profile-service:8080`).
 
 ### 6.4 Cloud Deployment (Optional)
@@ -311,3 +311,77 @@ hhcc-global-platform/
         ├── 01-schema.sql           # Unified schema DLL matching design
         └── 02-mock-data.sql        # Day 1 stub data
 ```
+
+---
+
+## Local Workspace Setup & Deployment Guide
+
+### 1. Prerequisites
+- **Docker Desktop** installed and running
+- **Node.js** (v22+) and **npm** (for local builds)
+- **Java 25** and **Maven** (for local Spring Boot builds)
+- **Git** (for cloning the repository)
+
+### 2. Clone the Repository
+```bash
+git clone <your-repo-url>
+cd hhcc-global-platform
+```
+
+### 3. Database Setup (Local)
+- The database is provisioned automatically by Docker Compose, but you can also create it manually:
+  1. Install PostgreSQL or MySQL locally (if not using Docker).
+  2. Use DBeaver or your preferred SQL client to connect.
+  3. Run the scripts in `database/init-scripts/01-schema.sql` and `02-mock-data.sql` to create tables and insert mock data.
+
+### 4. Deploy All Services at Once (Recommended)
+- Use Docker Compose to spin up the entire stack (Angular UI, Node.js Orchestrator, all Spring Boot microservices, and the database):
+
+```bash
+docker-compose up --build
+```
+- This will build and start all containers. The UI will be available at [http://localhost](http://localhost) and APIs at their respective ports.
+
+### 5. Deploy Individual Microservices (For Development)
+- You can run any service individually for debugging or development:
+
+#### a. Angular UI
+```bash
+cd angular-ui
+npm install
+npm start
+```
+- Access at [http://localhost:4200](http://localhost:4200)
+
+#### b. Node.js Orchestrator
+```bash
+cd node-orchestrator
+npm install
+npm run start:dev
+```
+- Access at [http://localhost:3000](http://localhost:3000) (or as configured)
+
+#### c. Spring Boot Microservices
+For each service (profile, scheduling, payment):
+```bash
+cd spring-microservices/<service-name>
+mvn clean spring-boot:run
+```
+- Default ports: 8081 (profile), 8082 (scheduling), 8083 (payment) unless overridden.
+
+#### d. Run a Service in Docker Individually
+```bash
+docker build -t <service-name> ./<service-folder>
+docker run -p <host-port>:<container-port> <service-name>
+```
+
+### 6. Validate Deployment
+- **Docker Compose**: Run `docker ps` to see all running containers. All services should show as healthy.
+- **UI**: Open [http://localhost](http://localhost) in your browser. You should see the Angular app.
+- **APIs**: Use Postman or your browser to hit endpoints like `http://localhost:3000/api/profile` or the respective microservice ports.
+- **Database**: Connect with DBeaver to the database container (use credentials from `docker-compose.yml`) and verify tables/data.
+
+### 7. Troubleshooting
+- If a service fails, check logs with `docker-compose logs <service-name>` or `docker logs <container-id>`.
+- Ensure ports are not in use by other applications.
+- For database issues, ensure the DB container is healthy and accessible.
