@@ -13,20 +13,30 @@ Welcome to the HHCC Global Platform! This repository contains the structural mon
 ## 🚀 Local Initialization (Day 1 Setup)
 
 ### 1. Establish the Unified Database
-The entire application (Profile, Scheduling, Payment) maps to a single, localized PostgreSQL relational database. To guarantee everyone builds against the exact same data definitions without manual setup, simply boot the database via Docker.
+The entire application (Profile, Scheduling, Payment) maps to a single, localized MySQL relational database. To guarantee everyone builds against the exact same data definitions without manual setup, simply boot the database via Docker.
 
 From the root `hhcc-global-platform/` directory, run:
 ```bash
-docker-compose up -d
+docker-compose -f docker-compose.mysql.yml up -d
 ```
-*Docker will boot `postgres:16-alpine` on port 5432 and immediately trigger the `.sql` scripts inside `/database/init-scripts`, injecting your initial database tables and mock rows perfectly.*
+*Docker will boot `mysql:8.0` on port 3306 and immediately trigger the `*-mysql.sql` scripts inside `/database/init-scripts`, injecting your initial database tables and mock rows perfectly.*
+
+#### 🔌 Connecting to the Database locally (e.g. via DBeaver)
+You can connect to the running Docker database using any SQL client with these credentials:
+- **Server Host:** `localhost` (or `127.0.0.1`)
+- **Port:** `3306`
+- **Database:** `hhcc_db`
+- **Username:** `root`
+- **Password:** `hhcc_password`
+
+*(Note for DBeaver users: If you get a "Public Key Retrieval is not allowed" error, right-click your connection, select **Edit Connection**, go to **Driver Properties**, and set `allowPublicKeyRetrieval` to `true`)*
 
 ### 2. Feature Scaffolding
 Following your startup, navigate strictly to your assigned layer to scaffold your frameworks. 
 
 - **Angular Builders (`/angular-ui`)**: Scaffold your modules (Profile, Booking, Payment). Be prepared to implement an Nginx proxy to eliminate CORS.
 - **Node.js Builders (`/node-orchestrator`)**: Initialize your API Orchestrator (Express/NestJS). You will pass the mock `X-Mock-User-Id` header downwards to Java.
-- **Spring Boot Builders (`/spring-microservices`)**: Generate your Maven packages (Java 25). **Do not use JPA/Hibernate**. Use Native JDBC templates and bind them against the PostgreSQL container you just booted.
+- **Spring Boot Builders (`/spring-microservices`)**: Generate your Maven packages (Java 25). **Do not use JPA/Hibernate**. Use Native JDBC templates and bind them against the MySQL container you just booted.
 
 ### 3. Contract-Driven Acceleration
 Load your respective OpenAPI YAML file directly into your IDE and invoke GitHub Copilot to automatically generate your core DTOs and Interfaces. Avoid hand-typing JSON models across the varying layers.

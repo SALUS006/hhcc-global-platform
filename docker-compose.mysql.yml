@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  # Base MySQL Database
+  hhcc-mysql:
+    image: mysql:8.0
+    container_name: hhcc-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: hhcc_password
+      MYSQL_DATABASE: hhcc_db
+    ports:
+      - "3306:3306"
+    volumes:
+      # We specifically mount only the MySQL scripts we created earlier
+      - ./database/init-scripts/01-schema-mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/init-scripts/02-mock-data-mysql.sql:/docker-entrypoint-initdb.d/02-mock-data.sql
+    networks:
+      - hhcc-network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  hhcc-network:
+    driver: bridge
