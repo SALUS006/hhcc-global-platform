@@ -80,6 +80,16 @@ services:
     networks:
       - hhcc-network
 
+  # Temporary dummy container so Nginx DNS resolution doesn't crash on startup
+  node-orchestrator:
+    image: alpine
+    container_name: node-orchestrator
+    command: ["sleep", "infinity"]
+    networks:
+      - hhcc-network
+
+
+
 networks:
   hhcc-network:
     driver: bridge

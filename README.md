@@ -15,7 +15,7 @@ Welcome to the HHCC Global Platform! This repository contains the structural mon
 To guarantee everyone builds against the exact same environment without manual installation bottlenecks, the entire backend is fully containerized with Docker. You have two ways to run the workspace depending on what you are working on.
 
 ### Strategy 1: Deploy Everything At Once (Recommended for UI & Integrations)
-This orchestrator boots the MySQL Database, applies the table schemas and mock data, and compiles and launches **all three Spring Boot microservices** simultaneously.
+This orchestrator boots the MySQL Database, applies the table schemas and mock data, and compiles and launches **the Angular UI and all three Spring Boot microservices** simultaneously.
 
 From the root `hhcc-global-platform/` directory, run:
 ```bash
@@ -32,9 +32,14 @@ docker-compose -f docker-compose.mysql.yml up -d
 *(DBeaver Note: Ensure `allowPublicKeyRetrieval=true` in your Driver Properties).*
 
 ### ✅ Validating Your Deployment
-Once the containers are deployed, Docker binds the respective microservices to your localhost automatically. 
+Once the containers are deployed, Docker binds the web interface and microservices to your localhost automatically. 
 
-Test your deployment natively by visiting these standard Health Check endpoints in your browser or Postman:
+**1. Access the Frontend UI:**
+Open your browser and navigate to the root domain representing the Nginx web server:
+- **Angular App**: [http://localhost](http://localhost)
+
+**2. Access the Backend APIs:**
+Test your Java deployments directly by visiting these standard Health Check endpoints in your browser or Postman:
 - **Profile Service**: [http://localhost:8080/api/v1/profiles/health](http://localhost:8080/api/v1/profiles/health)
 - **Scheduling Service**: [http://localhost:8081/api/v1/scheduling/health](http://localhost:8081/api/v1/scheduling/health)
 - **Payment Service**: [http://localhost:8082/api/v1/payment/health](http://localhost:8082/api/v1/payment/health)
