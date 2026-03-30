@@ -38,7 +38,7 @@ import { CommonModule } from '@angular/common';
     .logo { font-size: 20px; font-weight: 700; color: var(--primary); text-decoration: none; }
     .nav-links { display: flex; list-style: none; gap: 8px; align-items: center; }
     .nav-links a { padding: 8px 14px; border-radius: 6px; font-size: 14px; font-weight: 500; color: #424242; transition: all 0.2s; text-decoration: none; }
-    .nav-links a:hover, .nav-links a.active { background: #fbe9e7; color: var(--primary); }
+    .nav-links a:hover, .nav-links a.active { background: var(--primary-light); color: var(--primary); }
     .hamburger { display: none; background: none; border: none; font-size: 24px; cursor: pointer; }
     .footer { background: #fff; border-top: 1px solid var(--border); padding: 24px 0; margin-top: 48px; }
     .footer p { font-size: 13px; color: var(--text-light); margin: 4px 0; }

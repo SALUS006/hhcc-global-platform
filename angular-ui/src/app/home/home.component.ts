@@ -61,7 +61,7 @@ import { CareFacility } from '../shared/models';
     </section>
   `,
   styles: [`
-    .hero { background: linear-gradient(135deg, var(--primary) 0%, #ff6e40 100%); color: #fff; padding: 80px 0; text-align: center; }
+    .hero { background: linear-gradient(135deg, #1a3c5e 0%, #1a6b6a 50%, #4db6ac 100%); color: #fff; padding: 80px 0; text-align: center; }
     .hero h1 { font-size: 42px; margin-bottom: 12px; }
     .hero p { font-size: 18px; opacity: 0.9; margin-bottom: 28px; }
     .hero-actions { display: flex; gap: 16px; justify-content: center; }

@@ -94,7 +94,7 @@ import { CareFacility, FamilyMember, Pet, CareBooking } from '../../shared/model
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .toggle-group { display: flex; gap: 12px; }
     .toggle-btn { padding: 10px 20px; border: 2px solid var(--border); border-radius: var(--radius); background: #fff; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-    .toggle-btn.active { border-color: var(--primary); background: #fbe9e7; color: var(--primary); }
+    .toggle-btn.active { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
     .facility-preview { padding: 12px 16px; background: var(--bg); }
     .facility-preview p { font-size: 13px; margin-top: 4px; }
     .text-light { color: var(--text-light); }
