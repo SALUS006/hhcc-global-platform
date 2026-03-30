@@ -21,6 +21,20 @@ services:
       timeout: 5s
       retries: 5
 
+  angular-ui:
+    build:
+      context: ./angular-ui
+      dockerfile: Dockerfile
+    container_name: hhcc-angular-ui
+    ports:
+      - "80:80"
+    depends_on:
+      - ms-profile-service
+      - ms-scheduling-service
+      - ms-payment-service
+    networks:
+      - hhcc-network
+
   ms-profile-service:
     build:
       context: ./spring-microservices/profile-service
