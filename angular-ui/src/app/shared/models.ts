@@ -1,0 +1,62 @@
+export interface UserProfile {
+  id?: number;
+  fullName: string;
+  email: string;
+  role: string;
+  contactNumber: string;
+  createdBy?: number;
+  updatedBy?: number;
+}
+
+export interface FamilyMember {
+  id?: number;
+  userId?: number;
+  fullName: string;
+  relationship: string;
+  dateOfBirth: string;
+  careType: string;
+  specialNotes?: string;
+}
+
+export interface Pet {
+  id?: number;
+  userId?: number;
+  petName: string;
+  petType: string;
+  breed: string;
+  age: number;
+  weight?: number;
+  photoUrl?: string;
+  specialNotes?: string;
+}
+
+export interface CareFacility {
+  id?: number;
+  facilityName: string;
+  locationAddress: string;
+  description?: string;
+  photoUrl?: string;
+  isActive: boolean;
+}
+
+export interface CareBooking {
+  id?: number;
+  userId: number;
+  facilityId: number;
+  pickupTime: string;
+  dropoffTime: string;
+  status: string;
+  bookingType?: string;
+  memberName?: string;
+  facilityName?: string;
+}
+
+export interface PaymentInvoice {
+  id?: number;
+  bookingId: number;
+  amount: number;
+  currency: string;
+  status: string;
+  paymentDate?: string;
+  bookingDescription?: string;
+}
