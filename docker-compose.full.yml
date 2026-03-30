@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  # Base MySQL Database
+  hhcc-mysql:
+    image: mysql:8.0
+    container_name: hhcc-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: hhcc_password
+      MYSQL_DATABASE: hhcc_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./database/init-scripts/01-schema-mysql.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/init-scripts/02-mock-data-mysql.sql:/docker-entrypoint-initdb.d/02-mock-data.sql
+    networks:
+      - hhcc-network
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ms-profile-service:
+    build:
+      context: ./spring-microservices/profile-service
+      dockerfile: Dockerfile
+    container_name: ms-profile-service
+    environment:
+      - DB_HOST=hhcc-mysql
+    ports:
+      - "8080:8080"
+    depends_on:
+      hhcc-mysql:
+        condition: service_healthy
+    networks:
+      - hhcc-network
+
+  ms-scheduling-service:
+    build:
+      context: ./spring-microservices/scheduling-service
+      dockerfile: Dockerfile
+    container_name: ms-scheduling-service
+    environment:
+      - DB_HOST=hhcc-mysql
+    ports:
+      - "8081:8081"
+    depends_on:
+      hhcc-mysql:
+        condition: service_healthy
+    networks:
+      - hhcc-network
+
+  ms-payment-service:
+    build:
+      context: ./spring-microservices/payment-service
+      dockerfile: Dockerfile
+    container_name: ms-payment-service
+    environment:
+      - DB_HOST=hhcc-mysql
+    ports:
+      - "8082:8082"
+    depends_on:
+      hhcc-mysql:
+        condition: service_healthy
+    networks:
+      - hhcc-network
+
+networks:
+  hhcc-network:
+    driver: bridge

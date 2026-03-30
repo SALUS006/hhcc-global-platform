@@ -6,6 +6,17 @@ info:
 servers:
   - url: http://ms-scheduling-service:8080/api/v1
 paths:
+  /scheduling/health:
+    get:
+      summary: Health check endpoint returning Service and DB status
+      responses:
+        '200':
+          description: Service and DB status
+          content:
+            application/json:
+              example:
+                service: UP
+                database: CONNECTED
   /facilities:
     get:
       summary: Retrieve all facilities.
