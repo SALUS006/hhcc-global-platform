@@ -1,0 +1,24 @@
+<nav class="navbar">
+  <div class="container nav-inner">
+    <a routerLink="/" class="logo">🏠 HHCC</a>
+    <button class="hamburger" (click)="menuOpen = !menuOpen" aria-label="Toggle menu">☰</button>
+    <ul class="nav-links" [class.open]="menuOpen" role="navigation">
+      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="menuOpen=false">Home</a></li>
+      <li><a routerLink="/profile/family" routerLinkActive="active" (click)="menuOpen=false">Profile</a></li>
+      <li><a routerLink="/scheduling" routerLinkActive="active" (click)="menuOpen=false">Scheduling</a></li>
+      <li><a routerLink="/payment" routerLinkActive="active" (click)="menuOpen=false">Payment</a></li>
+      <li><a routerLink="/support" routerLinkActive="active" (click)="menuOpen=false">Support</a></li>
+      <li><a routerLink="/admin" routerLinkActive="active" (click)="menuOpen=false">Admin</a></li>
+      <li><a routerLink="/register" class="btn btn-primary btn-sm" (click)="menuOpen=false">Register</a></li>
+    </ul>
+  </div>
+</nav>
+<main>
+  <router-outlet />
+</main>
+<footer class="footer">
+  <div class="container text-center">
+    <p>&copy; 2026 Helping Hands Care Center. All rights reserved.</p>
+    <p><a href="#">Privacy</a> &middot; <a href="#">Terms</a> &middot; <a href="#">Contact</a></p>
+  </div>
+</footer>

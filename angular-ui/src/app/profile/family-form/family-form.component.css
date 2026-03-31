@@ -1,0 +1,3 @@
+.form-card { max-width: 600px; }
+.form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 8px; }
+.breadcrumb { color: var(--text-light); font-size: 13px; margin-top: 4px; }

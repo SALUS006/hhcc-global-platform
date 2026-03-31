@@ -1,0 +1,5 @@
+.booking-card { padding: 16px 20px; }
+.booking-header { display: flex; align-items: center; gap: 16px; }
+.booking-icon { font-size: 32px; }
+.booking-times { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+.booking-header .badge { margin-left: auto; white-space: nowrap; }

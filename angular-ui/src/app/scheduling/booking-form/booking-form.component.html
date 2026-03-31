@@ -1,0 +1,77 @@
+<div class="container mt-3">
+  <div class="page-header">
+    <h1>New Booking</h1>
+  </div>
+  <div class="card form-card">
+    <form (ngSubmit)="onSubmit()">
+      <!-- Booking Type Toggle -->
+      <div class="form-group">
+        <label>Booking Type *</label>
+        <div class="toggle-group">
+          <button type="button" class="toggle-btn" [class.active]="bookingType==='Family'" (click)="bookingType='Family'">👨‍👩‍👧 Family Member</button>
+          <button type="button" class="toggle-btn" [class.active]="bookingType==='Pet'" (click)="bookingType='Pet'">🐾 Pet</button>
+        </div>
+      </div>
+
+      <!-- Family Member Select -->
+      <div class="form-group" *ngIf="bookingType==='Family'">
+        <label for="member">Select Family Member *</label>
+        <select id="member" class="form-control" [(ngModel)]="selectedMember" name="member" required>
+          <option value="">Select...</option>
+          <option *ngFor="let m of familyMembers" [value]="m.fullName">{{ m.fullName }} ({{ m.relationship }})</option>
+        </select>
+      </div>
+
+      <!-- Pet Select -->
+      <div class="form-group" *ngIf="bookingType==='Pet'">
+        <label for="pet">Select Pet *</label>
+        <select id="pet" class="form-control" [(ngModel)]="selectedMember" name="pet" required>
+          <option value="">Select...</option>
+          <option *ngFor="let p of pets" [value]="p.petName">{{ p.petType === 'Dog' ? '🐕' : '🐈' }} {{ p.petName }}</option>
+        </select>
+      </div>
+
+      <!-- Facility -->
+      <div class="form-group">
+        <label for="facility">Select Care Facility *</label>
+        <select id="facility" class="form-control" [(ngModel)]="selectedFacilityId" name="facility" required>
+          <option [ngValue]="0">Select...</option>
+          <option *ngFor="let f of facilities" [ngValue]="f.id">{{ f.facilityName }} - {{ f.locationAddress }}</option>
+        </select>
+      </div>
+
+      <!-- Facility Preview -->
+      <div *ngIf="selectedFacility" class="facility-preview card mb-2">
+        <strong>🏢 {{ selectedFacility.facilityName }}</strong>
+        <p>{{ selectedFacility.locationAddress }}</p>
+        <p class="text-light">{{ selectedFacility.description }}</p>
+      </div>
+
+      <!-- Date/Time -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="pickup">Pick-Up Date &amp; Time *</label>
+          <input id="pickup" type="datetime-local" class="form-control" [(ngModel)]="pickupTime" name="pickupTime" required>
+        </div>
+        <div class="form-group">
+          <label for="dropoff">Drop-Off Date &amp; Time *</label>
+          <input id="dropoff" type="datetime-local" class="form-control" [(ngModel)]="dropoffTime" name="dropoffTime" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="instructions">Special Instructions</label>
+        <textarea id="instructions" class="form-control" [(ngModel)]="instructions" name="instructions"></textarea>
+      </div>
+
+      <div *ngIf="success" class="alert-success" style="padding:12px;border-radius:8px;margin-bottom:16px;background:#e8f5e9;color:#388e3c;">
+        Booking created successfully! <a routerLink="/scheduling">View Bookings</a>
+      </div>
+
+      <div class="form-actions">
+        <a routerLink="/scheduling" class="btn btn-secondary">Cancel</a>
+        <button type="submit" class="btn btn-primary" [disabled]="success">Confirm Booking</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,50 @@
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>Helping Hands Care Center</h1>
+    <p>Caring for Your Family &amp; Pets with Love and Trust</p>
+    <div class="hero-actions">
+      <a routerLink="/scheduling" class="btn btn-primary">Explore Services</a>
+      <a routerLink="/register" class="btn btn-secondary">Sign Up</a>
+    </div>
+  </div>
+</section>
+
+<!-- Services -->
+<section class="container mt-3">
+  <h2 class="section-title">Our Services</h2>
+  <div class="grid grid-3">
+    <div class="card service-card" *ngFor="let svc of services">
+      <div class="service-icon">{{ svc.icon }}</div>
+      <h3>{{ svc.title }}</h3>
+      <p>{{ svc.desc }}</p>
+      <a routerLink="/scheduling" class="btn btn-sm btn-secondary mt-2">Learn More</a>
+    </div>
+  </div>
+</section>
+
+<!-- USPs -->
+<section class="container mt-3">
+  <h2 class="section-title">Why Choose HHCC?</h2>
+  <div class="grid grid-2">
+    <div class="usp-item" *ngFor="let usp of usps">
+      <span class="usp-check">✅</span>
+      <span>{{ usp }}</span>
+    </div>
+  </div>
+</section>
+
+<!-- Facilities -->
+<section class="container mt-3 mb-3">
+  <h2 class="section-title">Our Care Centers</h2>
+  <div class="grid grid-2">
+    <div class="card facility-card" *ngFor="let f of facilities">
+      <div class="facility-photo">🏢</div>
+      <h3>{{ f.facilityName }}</h3>
+      <p class="text-light">{{ f.locationAddress }}</p>
+      <p>{{ f.description }}</p>
+      <div class="stars">⭐⭐⭐⭐⭐</div>
+      <a routerLink="/scheduling" class="btn btn-sm btn-primary mt-1">View Details</a>
+    </div>
+  </div>
+</section>
