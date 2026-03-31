@@ -1,0 +1,9 @@
+.kpi-card { text-align: center; padding: 20px; }
+.kpi-icon { font-size: 32px; margin-bottom: 8px; }
+.kpi-value { font-size: 28px; font-weight: 700; }
+.kpi-label { font-size: 13px; color: var(--text-light); text-transform: uppercase; font-weight: 600; margin-top: 4px; }
+.activity-list { display: flex; flex-direction: column; gap: 12px; }
+.activity-item { font-size: 14px; display: flex; gap: 8px; }
+.activity-time { color: var(--text-light); font-size: 13px; white-space: nowrap; }
+.facility-admin-card { padding: 16px; border: 1px solid var(--border); border-radius: var(--radius); }
+.text-light { color: var(--text-light); font-size: 13px; margin-top: 4px; }

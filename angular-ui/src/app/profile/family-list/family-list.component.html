@@ -1,0 +1,40 @@
+<div class="container mt-3">
+  <div class="page-header">
+    <div>
+      <h1>Family Members</h1>
+      <p class="breadcrumb">Profile &gt; Family Members</p>
+    </div>
+    <a routerLink="/profile/family/add" class="btn btn-primary">+ Add Family Member</a>
+  </div>
+
+  <div *ngIf="members.length === 0" class="card empty-state">
+    <div class="icon">📭</div>
+    <p>You haven't added any family members yet.</p>
+    <a routerLink="/profile/family/add" class="btn btn-primary mt-2">+ Add Family Member</a>
+  </div>
+
+  <div *ngIf="members.length > 0" class="card">
+    <table class="table">
+      <thead>
+        <tr><th>Name</th><th>Relationship</th><th>Care Type</th><th>DOB</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of members">
+          <td><strong>👤 {{ m.fullName }}</strong></td>
+          <td>{{ m.relationship }}</td>
+          <td><span class="badge" [class.badge-info]="m.careType==='Child Care'" [class.badge-warning]="m.careType==='Elderly Care'">{{ m.careType }}</span></td>
+          <td>{{ m.dateOfBirth }}</td>
+          <td>
+            <a [routerLink]="['/profile/family/edit', m.id]" class="btn btn-sm btn-secondary">Edit</a>
+            <button class="btn btn-sm btn-danger" (click)="onDelete(m.id!)">🗑️</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="mt-2 text-light" style="font-size:13px">Showing {{ members.length }} family members</p>
+  </div>
+
+  <div class="mt-2">
+    <a routerLink="/profile/pets" class="btn btn-secondary">View My Pets →</a>
+  </div>
+</div>

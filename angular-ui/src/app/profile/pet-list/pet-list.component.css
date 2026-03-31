@@ -1,0 +1,8 @@
+.breadcrumb { color: var(--text-light); font-size: 13px; margin-top: 4px; }
+.pet-card { text-align: center; }
+.pet-icon { font-size: 56px; margin-bottom: 8px; }
+.pet-card h3 { font-size: 18px; }
+.breed { color: var(--text-light); font-size: 14px; margin-bottom: 8px; }
+.pet-details { display: flex; gap: 16px; justify-content: center; font-size: 13px; color: var(--text-light); margin-bottom: 8px; }
+.notes { font-size: 13px; color: var(--text-light); font-style: italic; margin-bottom: 12px; }
+.pet-actions { display: flex; gap: 8px; justify-content: center; }

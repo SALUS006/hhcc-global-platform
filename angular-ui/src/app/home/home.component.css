@@ -1,0 +1,17 @@
+.hero { background: linear-gradient(135deg, #1a3c5e 0%, #1a6b6a 50%, #4db6ac 100%); color: #fff; padding: 80px 0; text-align: center; }
+.hero h1 { font-size: 42px; margin-bottom: 12px; }
+.hero p { font-size: 18px; opacity: 0.9; margin-bottom: 28px; }
+.hero-actions { display: flex; gap: 16px; justify-content: center; }
+.hero .btn-secondary { background: #fff; color: var(--primary); }
+.section-title { font-size: 24px; font-weight: 700; margin-bottom: 24px; text-align: center; }
+.service-card { text-align: center; }
+.service-icon { font-size: 48px; margin-bottom: 12px; }
+.service-card h3 { font-size: 18px; margin-bottom: 8px; }
+.service-card p { color: var(--text-light); font-size: 14px; }
+.usp-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; font-size: 16px; }
+.usp-check { font-size: 20px; }
+.facility-card { display: flex; flex-direction: column; gap: 8px; }
+.facility-photo { font-size: 64px; text-align: center; padding: 20px; background: var(--bg); border-radius: var(--radius); }
+.facility-card h3 { font-size: 18px; }
+.text-light { color: var(--text-light); font-size: 14px; }
+.stars { color: var(--accent); }

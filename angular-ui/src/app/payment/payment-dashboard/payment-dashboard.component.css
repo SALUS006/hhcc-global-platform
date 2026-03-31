@@ -1,0 +1,6 @@
+.summary-card { text-align: center; }
+.summary-label { font-size: 13px; color: var(--text-light); text-transform: uppercase; font-weight: 600; }
+.summary-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+.summary-value.danger { color: var(--danger); }
+.summary-value.success { color: var(--success); }
+.text-light { color: var(--text-light); font-size: 13px; }
