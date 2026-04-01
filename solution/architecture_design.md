@@ -110,7 +110,7 @@ Given the 1-week timeframe, domain logic is strategically grouped into three cor
 - **Domain**: Care Centers, Availability, Pick-up/Drop-off Bookings for both Family Members and Pets.
 - **Responsibilities**: Retrieves care facility catalog (UC#1), manages booking scheduling (UC#7 — family members, UC#8 — pets), polymorphic dependent resolution via `dependent_type` + `dependent_id`.
 - **JDBC Tables**: `care_facility`, `care_booking`
-- **Planned Endpoints**: `/api/v1/scheduling/facilities`, `/api/v1/scheduling/bookings`
+- **Live Endpoints**: `/api/v1/scheduling/facilities`, `/api/v1/scheduling/bookings`
 
 **Microservice 3: Payment Service** — Port `8082` — *owned by Naga* — (MVP Scope)
 - **Domain**: Invoices, Mock Payment Transactions.
@@ -440,10 +440,21 @@ hhcc-global-platform/
 │   │   ├── pom.xml
 │   │   └── Dockerfile
 │   │
-│   ├── scheduling-service/         # Port 8081 — owned by Naveen  🔧 In Progress
+│   ├── scheduling-service/         # Port 8081 — owned by Naveen  ✅ LIVE
 │   │   ├── src/main/java/com/hhcc/scheduling/
-│   │   │   └── controller/
-│   │   │       └── HealthController.java
+│   │   │   ├── controller/
+│   │   │   │   ├── HealthController.java
+│   │   │   │   ├── CareFacilityController.java    # /scheduling/facilities
+│   │   │   │   └── CareBookingController.java     # /scheduling/bookings
+│   │   │   ├── model/
+│   │   │   │   ├── CareFacility.java
+│   │   │   │   └── CareBooking.java
+│   │   │   ├── repository/
+│   │   │   │   ├── CareFacilityRepository.java
+│   │   │   │   └── CareBookingRepository.java
+│   │   │   └── exception/
+│   │   │       └── GlobalExceptionHandler.java
+│   │   ├── checkstyle.xml
 │   │   ├── pom.xml
 │   │   └── Dockerfile
 │   │
@@ -463,7 +474,7 @@ hhcc-global-platform/
     ├── architecture_design.md      # This document
     ├── requirement.md              # Business requirements & use cases
     ├── swagger-profile.yaml        # OpenAPI — Profile Service (MS1)  ✅ Aligned
-    ├── swagger-scheduling.yaml     # OpenAPI — Scheduling Service (MS2)  🔧 Contract defined
+    ├── swagger-scheduling.yaml     # OpenAPI — Scheduling Service (MS2)  ✅ Aligned
     └── swagger-payment.yaml        # OpenAPI — Payment Service (MS3)  🔧 Contract defined
 ```
 
