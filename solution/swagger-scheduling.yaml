@@ -6,7 +6,7 @@ info:
     API for managing Care Facility listings and booking schedules for the
     Helping Hands Care Center platform. Handles pick-up/drop-off appointments
     for family members (childcare/elderly) and pets.
-    Note: Only /health is currently live. All other routes are planned for Days 2-3.
+    Note: All endpoints are now live.
 servers:
   - url: http://localhost:8081/api/v1
     description: Local Docker deployment

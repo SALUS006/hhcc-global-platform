@@ -7,7 +7,7 @@ Welcome to the HHCC Global Platform! This repository contains the structural mon
 
 - **[Architecture & Solution Design](./solution/architecture_design.md)**: Details the exact integration patterns, Nginx proxying, and the exclusive DB architectural design.
 - **[Profile API Swagger](./solution/swagger-profile.yaml)**: Strict OpenAPI contract for Tanuj & Sandeep. *(Contract defined — implementation complete ✅)*
-- **[Scheduling API Swagger](./solution/swagger-scheduling.yaml)**: Strict OpenAPI contract for Arturo & Naveen. *(Contract defined — implementation in progress 🔧)*
+- **[Scheduling API Swagger](./solution/swagger-scheduling.yaml)**: Strict OpenAPI contract for Arturo & Naveen. *(Contract defined — implementation complete ✅)*
 - **[Payment API Swagger](./solution/swagger-payment.yaml)**: Strict OpenAPI contract for Alpesh & Naga. *(Contract defined — implementation in progress 🔧)*
 
 ## 🚀 Local Workspace & Deployment Strategies
@@ -103,14 +103,22 @@ All endpoints are exposed through the respective Spring Boot service. The Node.j
 
 ### Scheduling Service — `http://localhost:8081`
 
-> 🔧 **Sprint Status**: Only the `/health` endpoint is live. The `/facilities` and `/bookings` routes are **planned** and being implemented by Arturo (Node.js) & Naveen (Spring Boot) during Days 2–3.
-
+#### Facilities
 | Method | Endpoint | Description | UC | Status |
 |--------|----------|-------------|----|---------|
 | `GET` | `/api/v1/scheduling/health` | Health check | — | ✅ Live |
-| `GET` | `/api/v1/scheduling/facilities` | List care facilities | UC#1 | 🔧 Planned |
-| `GET` | `/api/v1/scheduling/bookings/{userId}` | List bookings for a user | UC#7, UC#8 | 🔧 Planned |
-| `POST` | `/api/v1/scheduling/bookings` | Create a booking | UC#7, UC#8 | 🔧 Planned |
+| `GET` | `/api/v1/scheduling/facilities` | List all active care facilities (optional `?careType=` filter) | UC#1 | ✅ Live |
+| `GET` | `/api/v1/scheduling/facilities/{id}` | Get a single facility | UC#1 | ✅ Live |
+
+#### Bookings
+| Method | Endpoint | Description | UC | Status |
+|--------|----------|-------------|----|---------|
+| `POST` | `/api/v1/scheduling/bookings` | Create a booking | UC#7, UC#8 | ✅ Live |
+| `GET` | `/api/v1/scheduling/bookings/{userId}` | List bookings for a user (optional `?status=` filter) | UC#7, UC#8 | ✅ Live |
+| `GET` | `/api/v1/scheduling/bookings/{userId}/{id}` | Get a single booking | UC#7, UC#8 | ✅ Live |
+| `DELETE` | `/api/v1/scheduling/bookings/{userId}/{id}` | Cancel a booking (soft-cancel) | UC#7, UC#8 | ✅ Live |
+
+> **Note:** The Scheduling Service (MS2) is fully deployed with facility listing and booking CRUD. Bookings use a polymorphic `dependentType` (FAMILY_MEMBER or PET) + `dependentId` pattern to support both UC#7 and UC#8.
 
 ### Payment Service — `http://localhost:8082`
 
