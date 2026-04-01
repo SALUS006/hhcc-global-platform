@@ -29,9 +29,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - ms-profile-service
-      - ms-scheduling-service
-      - ms-payment-service
+      - node-orchestrator
     networks:
       - hhcc-network
 
@@ -80,11 +78,21 @@ services:
     networks:
       - hhcc-network
 
-  # Temporary dummy container so Nginx DNS resolution doesn't crash on startup
   node-orchestrator:
-    image: alpine
-    container_name: node-orchestrator
-    command: ["sleep", "infinity"]
+    build:
+      context: ./node-orchestrator
+      dockerfile: Dockerfile
+    container_name: hhcc-node-orchestrator
+    environment:
+      - PROFILE_SERVICE_URL=http://ms-profile-service:8080/api/v1
+      - SCHEDULING_SERVICE_URL=http://ms-scheduling-service:8081/api/v1
+      - PAYMENT_SERVICE_URL=http://ms-payment-service:8082/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - ms-profile-service
+      - ms-scheduling-service
+      - ms-payment-service
     networks:
       - hhcc-network
 
