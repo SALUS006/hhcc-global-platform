@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { MockDataService } from '../../shared/mock-data.service';
+import { ApiService } from '../../shared/api.service';
 import { CareBooking } from '../../shared/models';
 
 @Component({
@@ -17,8 +17,8 @@ export class BookingListComponent {
   filterType = '';
   filterStatus = '';
 
-  constructor(private mock: MockDataService) {
-    this.bookings = this.mock.getBookings();
+  constructor(private api: ApiService) {
+    this.api.getBookings().subscribe(data => this.bookings = data);
   }
 
   get filtered() {

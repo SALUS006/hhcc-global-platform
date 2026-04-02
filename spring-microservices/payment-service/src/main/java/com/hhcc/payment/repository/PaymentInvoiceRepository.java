@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -54,6 +55,16 @@ public class PaymentInvoiceRepository {
      */
     public PaymentInvoiceRepository(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+    }
+
+    /**
+     * Retrieves all payment invoices ordered by most recent first.
+     * 
+     * @return a list of all PaymentInvoice entities
+     */
+    public List<PaymentInvoice> findAll() {
+        log.debug("Finding all payment invoices");
+        return jdbcTemplate.query("SELECT * FROM payment_invoice ORDER BY id DESC", ROW_MAPPER);
     }
 
     /**

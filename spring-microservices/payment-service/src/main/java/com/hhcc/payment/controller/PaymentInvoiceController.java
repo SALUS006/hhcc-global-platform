@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * REST Controller for payment invoice management.
  * 
@@ -35,6 +37,28 @@ public class PaymentInvoiceController {
      */
     public PaymentInvoiceController(PaymentInvoiceService paymentInvoiceService) {
         this.paymentInvoiceService = paymentInvoiceService;
+    }
+
+    /**
+     * Retrieves all payment invoices.
+     * 
+     * Returns a list of all payment invoices ordered by most recent first.
+     * Used by the Angular UI payment dashboard.
+     * 
+     * @return ResponseEntity with:
+     *         - 200 OK: List of PaymentInvoiceResponse objects
+     *         - 500 Internal Server Error: Unexpected server error
+     */
+    @GetMapping("/invoices")
+    public ResponseEntity<List<PaymentInvoiceResponse>> getAllInvoices() {
+        log.info("GET all payment invoices");
+        try {
+            List<PaymentInvoiceResponse> invoices = paymentInvoiceService.getAllInvoices();
+            return ResponseEntity.ok(invoices);
+        } catch (Exception e) {
+            log.error("Error retrieving all invoices", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     /**

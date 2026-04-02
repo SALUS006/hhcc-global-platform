@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { MockDataService } from '../../shared/mock-data.service';
+import { forkJoin } from 'rxjs';
+import { ApiService } from '../../shared/api.service';
 
 @Component({
   selector: 'app-admin-dashboard',
@@ -22,15 +23,21 @@ export class AdminDashboardComponent {
     { time: '9:00 AM', text: 'User profile updated: John Doe' }
   ];
 
-  constructor(private mock: MockDataService) {
-    this.users = this.mock.getProfiles();
-    this.facilities = this.mock.getFacilities();
-    const invoices = this.mock.getInvoices();
-    this.stats = {
-      users: this.users.length,
-      bookings: this.mock.getBookings().length,
-      revenue: invoices.filter(i => i.status === 'Paid').reduce((s, i) => s + i.amount, 0),
-      facilities: this.facilities.length
-    };
+  constructor(private api: ApiService) {
+    forkJoin({
+      users: this.api.getProfiles(),
+      bookings: this.api.getBookings(),
+      invoices: this.api.getInvoices(),
+      facilities: this.api.getFacilities()
+    }).subscribe(({ users, bookings, invoices, facilities }) => {
+      this.users = users;
+      this.facilities = facilities;
+      this.stats = {
+        users: users.length,
+        bookings: bookings.length,
+        revenue: invoices.filter(i => i.status === 'Paid').reduce((s, i) => s + i.amount, 0),
+        facilities: facilities.length
+      };
+    });
   }
 }

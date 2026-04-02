@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { MockDataService } from '../../shared/mock-data.service';
+import { ApiService } from '../../shared/api.service';
 import { PaymentInvoice } from '../../shared/models';
 
 @Component({
@@ -23,22 +23,25 @@ export class PaymentCheckoutComponent implements OnInit {
   cvv = '';
   holderName = '';
 
-  constructor(private mock: MockDataService, private route: ActivatedRoute) {}
+  constructor(private api: ApiService, private route: ActivatedRoute) {}
 
   ngOnInit() {
     const id = +(this.route.snapshot.paramMap.get('invoiceId') || '0');
-    this.invoice = this.mock.getInvoice(id);
-    if (this.invoice) {
-      this.tax = this.invoice.amount * 0.08;
-      this.total = this.invoice.amount + this.tax;
-    }
+    this.api.getInvoice(id).subscribe(invoice => {
+      this.invoice = invoice;
+      if (this.invoice) {
+        this.tax = this.invoice.amount * 0.08;
+        this.total = this.invoice.amount + this.tax;
+      }
+    });
   }
 
   onPay() {
     if (!this.cardNumber || !this.expiry || !this.cvv || !this.holderName) return;
     if (this.invoice) {
-      this.mock.payInvoice(this.invoice.id!);
-      this.paid = true;
+      this.api.payInvoice(this.invoice.id!).subscribe(() => {
+        this.paid = true;
+      });
     }
   }
 }

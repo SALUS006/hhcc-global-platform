@@ -36,12 +36,13 @@ router.get('/facilities/:id', async (req: Request, res: Response) => {
 
 // ── Bookings ──
 
-// GET /bookings
+// GET /bookings — list all bookings for the current user
 router.get('/bookings', async (req: Request, res: Response) => {
   if (STUB_MODE) {
     return res.json(stubBookings);
   }
-  await proxyRequest('GET', `${SCHEDULING_SERVICE_URL}/scheduling/bookings`, req, res);
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('GET', `${SCHEDULING_SERVICE_URL}/scheduling/bookings/${userId}`, req, res);
 });
 
 // POST /bookings
@@ -52,13 +53,14 @@ router.post('/bookings', async (req: Request, res: Response) => {
   await proxyRequest('POST', `${SCHEDULING_SERVICE_URL}/scheduling/bookings`, req, res);
 });
 
-// GET /bookings/:id
+// GET /bookings/:id — get single booking by id (scoped to user)
 router.get('/bookings/:id', async (req: Request, res: Response) => {
   if (STUB_MODE) {
     const booking = stubBookings.find(b => b.id === Number(req.params.id));
     return booking ? res.json(booking) : res.status(404).json({ error: 'Not Found' });
   }
-  await proxyRequest('GET', `${SCHEDULING_SERVICE_URL}/scheduling/bookings/${req.params.id}`, req, res);
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('GET', `${SCHEDULING_SERVICE_URL}/scheduling/bookings/${userId}/${req.params.id}`, req, res);
 });
 
 // PUT /bookings/:id
@@ -69,12 +71,13 @@ router.put('/bookings/:id', async (req: Request, res: Response) => {
   await proxyRequest('PUT', `${SCHEDULING_SERVICE_URL}/scheduling/bookings/${req.params.id}`, req, res);
 });
 
-// DELETE /bookings/:id
+// DELETE /bookings/:id — cancel booking (scoped to user)
 router.delete('/bookings/:id', async (req: Request, res: Response) => {
   if (STUB_MODE) {
     return res.status(204).send();
   }
-  await proxyRequest('DELETE', `${SCHEDULING_SERVICE_URL}/scheduling/bookings/${req.params.id}`, req, res);
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('DELETE', `${SCHEDULING_SERVICE_URL}/scheduling/bookings/${userId}/${req.params.id}`, req, res);
 });
 
 // GET /scheduling/health
