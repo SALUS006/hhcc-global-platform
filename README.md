@@ -127,8 +127,8 @@ All endpoints are exposed through the respective Spring Boot service. The Node.j
 | Method | Endpoint | Description | UC | Status |
 |--------|----------|-------------|----|---------|
 | `GET` | `/api/v1/payment/health` | Health check | — | ✅ Live |
-| `GET` | `/api/v1/payment/invoices/{bookingId}` | Get invoice for a booking | UC#9 | 🔧 Planned |
-| `POST` | `/api/v1/payment/invoices` | Submit a payment (mock) | UC#9 | 🔧 Planned |
+| `GET` | `/api/v1/payment/invoices/{bookingId}` | Get invoice for a booking | UC#9 |✅ Live  |
+| `POST` | `/api/v1/payment/invoices` | Submit a payment (mock) | UC#9 | ✅ Live |
 
 ## ⚖️ Team Governance Policies
 As established in Section 8 of the Architecture document, strictly abide by vertical domain mapping. **Sandeep** and **Naveen** are your core DB Architects—no developer outside of them should alter the Database Initialization Scripts. Maintain strict boundaries so we avoid merge conflict bottlenecks!
