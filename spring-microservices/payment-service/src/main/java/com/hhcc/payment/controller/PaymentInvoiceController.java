@@ -156,7 +156,7 @@ public class PaymentInvoiceController {
 
         } catch (IllegalArgumentException e) {
             log.warn("Error refunding invoice: {}", e.getMessage());
-            if ("Invoice not found: " + id.equals(e.getMessage())) {
+            if (("Invoice not found: " + id).equals(e.getMessage())) {
                 return ResponseEntity.notFound().build();
             } else {
                 return ResponseEntity.badRequest().build();
