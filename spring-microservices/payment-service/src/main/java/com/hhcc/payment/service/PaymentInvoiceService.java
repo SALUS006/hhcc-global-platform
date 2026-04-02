@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -34,6 +35,19 @@ public class PaymentInvoiceService {
      */
     public PaymentInvoiceService(PaymentInvoiceRepository paymentInvoiceRepository) {
         this.paymentInvoiceRepository = paymentInvoiceRepository;
+    }
+
+    /**
+     * Retrieves all payment invoices.
+     * 
+     * @return a list of all PaymentInvoiceResponse objects ordered by most recent first
+     */
+    public List<PaymentInvoiceResponse> getAllInvoices() {
+        log.debug("Retrieving all invoices");
+        List<PaymentInvoice> invoices = paymentInvoiceRepository.findAll();
+        return invoices.stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
     /**

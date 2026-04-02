@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { MockDataService } from '../../shared/mock-data.service';
+import { ApiService } from '../../shared/api.service';
 import { FamilyMember } from '../../shared/models';
 
 @Component({
@@ -13,12 +13,11 @@ import { FamilyMember } from '../../shared/models';
 })
 export class FamilyListComponent {
   members: FamilyMember[] = [];
-  constructor(private mock: MockDataService) { this.load(); }
-  load() { this.members = this.mock.getFamilyMembers(); }
+  constructor(private api: ApiService) { this.load(); }
+  load() { this.api.getFamilyMembers().subscribe(data => this.members = data); }
   onDelete(id: number) {
     if (confirm('Are you sure you want to delete this family member?')) {
-      this.mock.deleteFamilyMember(id);
-      this.load();
+      this.api.deleteFamilyMember(id).subscribe(() => this.load());
     }
   }
 }

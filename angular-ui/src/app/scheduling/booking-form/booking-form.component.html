@@ -16,18 +16,18 @@
       <!-- Family Member Select -->
       <div class="form-group" *ngIf="bookingType==='Family'">
         <label for="member">Select Family Member *</label>
-        <select id="member" class="form-control" [(ngModel)]="selectedMember" name="member" required>
-          <option value="">Select...</option>
-          <option *ngFor="let m of familyMembers" [value]="m.fullName">{{ m.fullName }} ({{ m.relationship }})</option>
+        <select id="member" class="form-control" [(ngModel)]="selectedMemberId" name="member" required (ngModelChange)="onMemberChange()">
+          <option [ngValue]="0">Select...</option>
+          <option *ngFor="let m of familyMembers" [ngValue]="m.id">{{ m.fullName }} ({{ m.relationship }})</option>
         </select>
       </div>
 
       <!-- Pet Select -->
       <div class="form-group" *ngIf="bookingType==='Pet'">
         <label for="pet">Select Pet *</label>
-        <select id="pet" class="form-control" [(ngModel)]="selectedMember" name="pet" required>
-          <option value="">Select...</option>
-          <option *ngFor="let p of pets" [value]="p.petName">{{ p.petType === 'Dog' ? '🐕' : '🐈' }} {{ p.petName }}</option>
+        <select id="pet" class="form-control" [(ngModel)]="selectedMemberId" name="pet" required (ngModelChange)="onPetChange()">
+          <option [ngValue]="0">Select...</option>
+          <option *ngFor="let p of pets" [ngValue]="p.id">{{ p.petType === 'Dog' ? '🐕' : '🐈' }} {{ p.petName }}</option>
         </select>
       </div>
 

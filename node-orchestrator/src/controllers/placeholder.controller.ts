@@ -1,10 +1,11 @@
 import { Router, Request, Response } from 'express';
+import { proxyRequest } from '../utils/proxy';
+import { PROFILE_SERVICE_URL, STUB_MODE } from '../utils/config';
 
 const router = Router();
 
 // ═══════════════════════════════════════════════════════════════
-// Family Members — In-memory stub (no backing microservice yet)
-// TODO: Proxy to Profile microservice once family_member table and API exist
+// Family Members — Proxied to Profile microservice
 // ═══════════════════════════════════════════════════════════════
 
 let familyMembers = [
@@ -15,48 +16,67 @@ let familyMembers = [
 let familyNextId = 4;
 
 // GET /family-members
-// TODO: Proxy to Profile microservice once family_member table and API exist
-router.get('/family-members', (_req: Request, res: Response) => {
-  res.json(familyMembers);
+// Proxied to Profile microservice
+router.get('/family-members', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    return res.json(familyMembers);
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('GET', `${PROFILE_SERVICE_URL}/profiles/${userId}/family-members`, req, res);
 });
 
 // POST /family-members
-// TODO: Proxy to Profile microservice once family_member table and API exist
-router.post('/family-members', (req: Request, res: Response) => {
-  const member = { id: familyNextId++, ...req.body };
-  familyMembers.push(member);
-  res.status(201).json(member);
+// Proxied to Profile microservice
+router.post('/family-members', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    const member = { id: familyNextId++, ...req.body };
+    familyMembers.push(member);
+    return res.status(201).json(member);
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('POST', `${PROFILE_SERVICE_URL}/profiles/${userId}/family-members`, req, res);
 });
 
 // GET /family-members/:id
-// TODO: Proxy to Profile microservice once family_member table and API exist
-router.get('/family-members/:id', (req: Request, res: Response) => {
-  const member = familyMembers.find(m => m.id === Number(req.params.id));
-  if (!member) return res.status(404).json({ error: 'Family member not found' });
-  res.json(member);
+// Proxied to Profile microservice
+router.get('/family-members/:id', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    const member = familyMembers.find(m => m.id === Number(req.params.id));
+    if (!member) return res.status(404).json({ error: 'Family member not found' });
+    return res.json(member);
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('GET', `${PROFILE_SERVICE_URL}/profiles/${userId}/family-members/${req.params.id}`, req, res);
 });
 
 // PUT /family-members/:id
-// TODO: Proxy to Profile microservice once family_member table and API exist
-router.put('/family-members/:id', (req: Request, res: Response) => {
-  const idx = familyMembers.findIndex(m => m.id === Number(req.params.id));
-  if (idx === -1) return res.status(404).json({ error: 'Family member not found' });
-  familyMembers[idx] = { ...familyMembers[idx], ...req.body, id: familyMembers[idx].id };
-  res.json(familyMembers[idx]);
+// Proxied to Profile microservice
+router.put('/family-members/:id', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    const idx = familyMembers.findIndex(m => m.id === Number(req.params.id));
+    if (idx === -1) return res.status(404).json({ error: 'Family member not found' });
+    familyMembers[idx] = { ...familyMembers[idx], ...req.body, id: familyMembers[idx].id };
+    return res.json(familyMembers[idx]);
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('PUT', `${PROFILE_SERVICE_URL}/profiles/${userId}/family-members/${req.params.id}`, req, res);
 });
 
 // DELETE /family-members/:id
-// TODO: Proxy to Profile microservice once family_member table and API exist
-router.delete('/family-members/:id', (req: Request, res: Response) => {
-  const idx = familyMembers.findIndex(m => m.id === Number(req.params.id));
-  if (idx === -1) return res.status(404).json({ error: 'Family member not found' });
-  familyMembers.splice(idx, 1);
-  res.status(204).send();
+// Proxied to Profile microservice
+router.delete('/family-members/:id', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    const idx = familyMembers.findIndex(m => m.id === Number(req.params.id));
+    if (idx === -1) return res.status(404).json({ error: 'Family member not found' });
+    familyMembers.splice(idx, 1);
+    return res.status(204).send();
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('DELETE', `${PROFILE_SERVICE_URL}/profiles/${userId}/family-members/${req.params.id}`, req, res);
 });
 
 // ═══════════════════════════════════════════════════════════════
-// Pets — In-memory stub (no backing microservice yet)
-// TODO: Proxy to Profile microservice once pet_profile table and API exist
+// Pets — Proxied to Profile microservice
 // ═══════════════════════════════════════════════════════════════
 
 let pets = [
@@ -66,43 +86,63 @@ let pets = [
 let petNextId = 3;
 
 // GET /pets
-// TODO: Proxy to Profile microservice once pet_profile table and API exist
-router.get('/pets', (_req: Request, res: Response) => {
-  res.json(pets);
+// Proxied to Profile microservice
+router.get('/pets', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    return res.json(pets);
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('GET', `${PROFILE_SERVICE_URL}/profiles/${userId}/pets`, req, res);
 });
 
 // POST /pets
-// TODO: Proxy to Profile microservice once pet_profile table and API exist
-router.post('/pets', (req: Request, res: Response) => {
-  const pet = { id: petNextId++, ...req.body };
-  pets.push(pet);
-  res.status(201).json(pet);
+// Proxied to Profile microservice
+router.post('/pets', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    const pet = { id: petNextId++, ...req.body };
+    pets.push(pet);
+    return res.status(201).json(pet);
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('POST', `${PROFILE_SERVICE_URL}/profiles/${userId}/pets`, req, res);
 });
 
 // GET /pets/:id
-// TODO: Proxy to Profile microservice once pet_profile table and API exist
-router.get('/pets/:id', (req: Request, res: Response) => {
-  const pet = pets.find(p => p.id === Number(req.params.id));
-  if (!pet) return res.status(404).json({ error: 'Pet not found' });
-  res.json(pet);
+// Proxied to Profile microservice
+router.get('/pets/:id', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    const pet = pets.find(p => p.id === Number(req.params.id));
+    if (!pet) return res.status(404).json({ error: 'Pet not found' });
+    return res.json(pet);
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('GET', `${PROFILE_SERVICE_URL}/profiles/${userId}/pets/${req.params.id}`, req, res);
 });
 
 // PUT /pets/:id
-// TODO: Proxy to Profile microservice once pet_profile table and API exist
-router.put('/pets/:id', (req: Request, res: Response) => {
-  const idx = pets.findIndex(p => p.id === Number(req.params.id));
-  if (idx === -1) return res.status(404).json({ error: 'Pet not found' });
-  pets[idx] = { ...pets[idx], ...req.body, id: pets[idx].id };
-  res.json(pets[idx]);
+// Proxied to Profile microservice
+router.put('/pets/:id', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    const idx = pets.findIndex(p => p.id === Number(req.params.id));
+    if (idx === -1) return res.status(404).json({ error: 'Pet not found' });
+    pets[idx] = { ...pets[idx], ...req.body, id: pets[idx].id };
+    return res.json(pets[idx]);
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('PUT', `${PROFILE_SERVICE_URL}/profiles/${userId}/pets/${req.params.id}`, req, res);
 });
 
 // DELETE /pets/:id
-// TODO: Proxy to Profile microservice once pet_profile table and API exist
-router.delete('/pets/:id', (req: Request, res: Response) => {
-  const idx = pets.findIndex(p => p.id === Number(req.params.id));
-  if (idx === -1) return res.status(404).json({ error: 'Pet not found' });
-  pets.splice(idx, 1);
-  res.status(204).send();
+// Proxied to Profile microservice
+router.delete('/pets/:id', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    const idx = pets.findIndex(p => p.id === Number(req.params.id));
+    if (idx === -1) return res.status(404).json({ error: 'Pet not found' });
+    pets.splice(idx, 1);
+    return res.status(204).send();
+  }
+  const userId = (req.headers['x-mock-user-id'] as string) || '1';
+  await proxyRequest('DELETE', `${PROFILE_SERVICE_URL}/profiles/${userId}/pets/${req.params.id}`, req, res);
 });
 
 // ═══════════════════════════════════════════════════════════════

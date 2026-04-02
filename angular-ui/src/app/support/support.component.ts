@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ApiService } from '../shared/api.service';
 
 @Component({
   selector: 'app-support',
@@ -22,7 +23,13 @@ export class SupportComponent {
     { q: 'How do I update my pet\'s information?', a: 'Go to Profile > My Pets, find your pet card, and click "Edit" to update their information.', open: false }
   ];
 
+  constructor(private api: ApiService) {}
+
   submitFeedback() {
-    if (this.rating > 0) { this.submitted = true; }
+    if (this.rating > 0) {
+      this.api.submitFeedback({ userId: 1, rating: this.rating, comment: this.feedback }).subscribe(() => {
+        this.submitted = true;
+      });
+    }
   }
 }

@@ -43,9 +43,13 @@ export interface CareBooking {
   id?: number;
   userId: number;
   facilityId: number;
+  careType?: string;
+  dependentType?: string;
+  dependentId?: number;
   pickupTime: string;
   dropoffTime: string;
   status: string;
+  notes?: string;
   bookingType?: string;
   memberName?: string;
   facilityName?: string;

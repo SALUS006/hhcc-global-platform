@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { MockDataService } from '../shared/mock-data.service';
+import { ApiService } from '../shared/api.service';
 import { CareFacility } from '../shared/models';
 
 @Component({
@@ -25,7 +25,7 @@ export class HomeComponent {
     'Secure online payments'
   ];
 
-  constructor(private mock: MockDataService) {
-    this.facilities = this.mock.getFacilities();
+  constructor(private api: ApiService) {
+    this.api.getFacilities().subscribe(data => this.facilities = data);
   }
 }

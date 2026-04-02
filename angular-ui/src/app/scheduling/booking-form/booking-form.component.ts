@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
-import { MockDataService } from '../../shared/mock-data.service';
+import { ApiService } from '../../shared/api.service';
 import { CareFacility, FamilyMember, Pet, CareBooking } from '../../shared/models';
 
 @Component({
@@ -14,7 +14,8 @@ import { CareFacility, FamilyMember, Pet, CareBooking } from '../../shared/model
 })
 export class BookingFormComponent {
   bookingType = 'Family';
-  selectedMember = '';
+  selectedMemberId = 0;
+  selectedMemberName = '';
   selectedFacilityId = 0;
   pickupTime = '';
   dropoffTime = '';
@@ -25,29 +26,44 @@ export class BookingFormComponent {
   pets: Pet[] = [];
   facilities: CareFacility[] = [];
 
-  constructor(private mock: MockDataService, private router: Router) {
-    this.familyMembers = this.mock.getFamilyMembers();
-    this.pets = this.mock.getPets();
-    this.facilities = this.mock.getFacilities();
+  constructor(private api: ApiService, private router: Router) {
+    this.api.getFamilyMembers().subscribe(data => this.familyMembers = data);
+    this.api.getPets().subscribe(data => this.pets = data);
+    this.api.getFacilities().subscribe(data => this.facilities = data);
   }
 
   get selectedFacility() {
     return this.facilities.find(f => f.id === this.selectedFacilityId);
   }
 
+  onMemberChange() {
+    const member = this.familyMembers.find(m => m.id === this.selectedMemberId);
+    this.selectedMemberName = member?.fullName || '';
+  }
+
+  onPetChange() {
+    const pet = this.pets.find(p => p.id === this.selectedMemberId);
+    this.selectedMemberName = pet?.petName || '';
+  }
+
   onSubmit() {
-    if (!this.selectedMember || !this.selectedFacilityId || !this.pickupTime || !this.dropoffTime) return;
+    if (!this.selectedMemberId || !this.selectedFacilityId || !this.pickupTime || !this.dropoffTime) return;
     const booking: CareBooking = {
-      userId: 2,
+      userId: 1,
       facilityId: this.selectedFacilityId,
+      careType: this.bookingType === 'Pet' ? 'PET' : 'CHILDCARE',
+      dependentType: this.bookingType === 'Pet' ? 'PET' : 'FAMILY_MEMBER',
+      dependentId: this.selectedMemberId,
       pickupTime: this.pickupTime,
       dropoffTime: this.dropoffTime,
-      status: 'Pending',
+      status: 'PENDING',
+      notes: this.instructions || undefined,
       bookingType: this.bookingType,
-      memberName: this.selectedMember,
+      memberName: this.selectedMemberName,
       facilityName: this.selectedFacility?.facilityName || ''
     };
-    this.mock.createBooking(booking);
-    this.success = true;
+    this.api.createBooking(booking).subscribe(() => {
+      this.success = true;
+    });
   }
 }
