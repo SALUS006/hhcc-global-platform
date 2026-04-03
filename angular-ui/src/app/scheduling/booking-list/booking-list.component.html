@@ -16,6 +16,7 @@
       <option value="Confirmed">Confirmed</option>
       <option value="Pending">Pending</option>
       <option value="Completed">Completed</option>
+      <option value="Cancelled">Cancelled</option>
     </select>
   </div>
 
@@ -28,16 +29,21 @@
   <div class="bookings">
     <div class="card booking-card mb-2" *ngFor="let b of filtered">
       <div class="booking-header">
-        <span class="booking-icon">{{ b.bookingType === 'Pet' ? '🐾' : '👨‍👩‍👧' }}</span>
+        <span class="booking-icon">{{ b.bookingTypeUi === 'Pet' ? '🐾' : '👨‍👩‍👧' }}</span>
         <div>
-          <strong>{{ b.memberName }}</strong> → {{ b.facilityName }}
+          <strong>{{ b.memberNameUi }}</strong> → {{ b.facilityNameUi }}
           <div class="booking-times">
             Pick-up: {{ b.pickupTime | date:'MMM d, y h:mm a' }} &nbsp;|&nbsp;
             Drop-off: {{ b.dropoffTime | date:'MMM d, y h:mm a' }}
           </div>
         </div>
-        <span class="badge" [class.badge-success]="b.status==='Confirmed'" [class.badge-warning]="b.status==='Pending'" [class.badge-info]="b.status==='Completed'">
-          {{ b.status === 'Confirmed' ? '✅' : b.status === 'Pending' ? '⏳' : '✔️' }} {{ b.status }}
+        <span
+          class="badge"
+          [class.badge-success]="b.statusUi==='Confirmed'"
+          [class.badge-warning]="b.statusUi==='Pending'"
+          [class.badge-info]="b.statusUi==='Completed'">
+          {{ b.statusUi === 'Confirmed' ? '✅' : b.statusUi === 'Pending' ? '⏳' : b.statusUi === 'Completed' ? '✔️' : 'ℹ️' }}
+          {{ b.statusUi }}
         </span>
       </div>
     </div>
