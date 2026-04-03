@@ -1,7 +1,12 @@
 import { CareBooking, CareFacility, FamilyMember, Pet } from '../../shared/models';
 
 export type UiBookingType = 'Pet' | 'Family';
-export type UiBookingStatus = 'Confirmed' | 'Pending' | 'Completed' | 'Cancelled' | string;
+export type UiBookingStatus =
+  | 'Confirmed'
+  | 'Pending'
+  | 'Completed'
+  | 'Cancelled'
+  | (string & {});
 
 export interface BookingListItem extends CareBooking {
   bookingTypeUi: UiBookingType;
