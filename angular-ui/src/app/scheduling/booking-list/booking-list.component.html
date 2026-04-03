@@ -41,7 +41,9 @@
           class="badge"
           [class.badge-success]="b.statusUi==='Confirmed'"
           [class.badge-warning]="b.statusUi==='Pending'"
-          [class.badge-info]="b.statusUi==='Completed'">
+          [class.badge-info]="b.statusUi==='Completed'"
+          [class.badge-danger]="b.statusUi==='Cancelled'"
+          [class.badge-secondary]="b.statusUi!=='Confirmed' && b.statusUi!=='Pending' && b.statusUi!=='Completed' && b.statusUi!=='Cancelled'">
           {{ b.statusUi === 'Confirmed' ? '✅' : b.statusUi === 'Pending' ? '⏳' : b.statusUi === 'Completed' ? '✔️' : 'ℹ️' }}
           {{ b.statusUi }}
         </span>
