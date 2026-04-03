@@ -62,8 +62,8 @@ function resolveMemberName(
   petById: Map<number, Pet>
 ): string {
   if (!booking.dependentId) return 'Unknown dependent';
-  const dependentType = (booking.dependentType ?? '').toUpperCase();
-  if (dependentType === 'PET') {
+  const bookingType = resolveBookingType(booking);
+  if (bookingType === 'Pet') {
     return petById.get(booking.dependentId)?.petName ?? `Pet #${booking.dependentId}`;
   }
   return familyById.get(booking.dependentId)?.fullName ?? `Member #${booking.dependentId}`;
