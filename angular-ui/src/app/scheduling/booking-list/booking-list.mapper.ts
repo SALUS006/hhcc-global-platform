@@ -1,7 +1,7 @@
 import { CareBooking, CareFacility, FamilyMember, Pet } from '../../shared/models';
 
 export type UiBookingType = 'Pet' | 'Family';
-export type UiBookingStatus = 'Confirmed' | 'Pending' | 'Completed' | 'Cancelled' | 'Unknown';
+export type UiBookingStatus = 'Confirmed' | 'Pending' | 'Completed' | 'Cancelled' | string;
 
 export interface BookingListItem extends CareBooking {
   bookingTypeUi: UiBookingType;
@@ -48,7 +48,7 @@ function resolveStatus(status: string | undefined): UiBookingStatus {
     case 'COMPLETED': return 'Completed';
     case 'CANCELLED':
     case 'CANCELED':  return 'Cancelled';
-    default:          return 'Unknown';
+    default:          return status ?? '';
   }
 }
 
