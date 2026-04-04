@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { inject } from '@angular/core';
+import { AuthService } from './shared/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -11,4 +13,10 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent {
   menuOpen = false;
+  authService = inject(AuthService);
+
+  logout() {
+    this.authService.logout();
+    this.menuOpen = false;
+  }
 }

@@ -19,8 +19,8 @@ export class PaymentDashboardComponent {
   constructor(private api: ApiService) {
     this.api.getInvoices().subscribe(data => {
       this.invoices = data;
-      this.totalDue = this.invoices.filter(i => i.status === 'Unpaid').reduce((s, i) => s + i.amount, 0);
-      this.totalPaid = this.invoices.filter(i => i.status === 'Paid').reduce((s, i) => s + i.amount, 0);
+      this.totalDue = this.invoices.filter(i => i.status === 'Unpaid' || i.status === 'UNPAID').reduce((s, i) => s + i.amount, 0);
+      this.totalPaid = this.invoices.filter(i => i.status === 'Paid' || i.status === 'PAID').reduce((s, i) => s + i.amount, 0);
     });
   }
 }

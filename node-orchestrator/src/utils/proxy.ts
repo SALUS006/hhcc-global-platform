@@ -17,8 +17,11 @@ export async function proxyRequest(
     url: targetUrl,
     headers: {
       'Content-Type': req.headers['content-type'] || 'application/json',
-      ...(req.headers['x-mock-user-id']
-        ? { 'X-Mock-User-Id': req.headers['x-mock-user-id'] as string }
+      ...((req as any).user
+        ? { 
+            'X-User-Id': String((req as any).user.userId),
+            'X-User-Role': (req as any).user.role 
+          }
         : {}),
     },
     params: req.query,

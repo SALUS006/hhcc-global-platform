@@ -24,21 +24,21 @@
     <h3 style="margin-bottom:16px">Invoice History</h3>
     <table class="table">
       <thead>
-        <tr><th>Invoice</th><th>Booking</th><th>Amount</th><th>Status</th><th>Action</th></tr>
+        <tr><th>Action</th><th>Invoice</th><th>Booking</th><th>Amount</th><th>Status</th></tr>
       </thead>
       <tbody>
         <tr *ngFor="let inv of invoices">
+          <td>
+            <a *ngIf="inv.status==='Unpaid' || inv.status==='UNPAID'" [routerLink]="['/payment/checkout', inv.id]" class="btn btn-sm btn-primary">Pay Now</a>
+            <span *ngIf="inv.status==='Paid' || inv.status==='PAID'" class="text-light">View</span>
+          </td>
           <td>INV-{{ inv.id?.toString()?.padStart(3, '0') }}</td>
-          <td>{{ inv.bookingDescription }}</td>
+          <td>Booking #{{ inv.bookingId }}</td>
           <td>${{ inv.amount.toFixed(2) }}</td>
           <td>
-            <span class="badge" [class.badge-success]="inv.status==='Paid'" [class.badge-warning]="inv.status==='Unpaid'" [class.badge-danger]="inv.status==='Refunded'">
-              {{ inv.status === 'Paid' ? '✅' : '⚠️' }} {{ inv.status }}
+            <span class="badge" [class.badge-success]="inv.status==='Paid' || inv.status==='PAID'" [class.badge-warning]="inv.status==='Unpaid' || inv.status==='UNPAID'" [class.badge-danger]="inv.status==='Refunded' || inv.status==='REFUNDED'">
+              {{ inv.status === 'Paid' || inv.status === 'PAID' ? '✅' : '⚠️' }} {{ inv.status }}
             </span>
-          </td>
-          <td>
-            <a *ngIf="inv.status==='Unpaid'" [routerLink]="['/payment/checkout', inv.id]" class="btn btn-sm btn-primary">Pay Now</a>
-            <span *ngIf="inv.status==='Paid'" class="text-light">View</span>
           </td>
         </tr>
       </tbody>

@@ -8,6 +8,8 @@ import profileController from './controllers/profile.controller';
 import schedulingController from './controllers/scheduling.controller';
 import paymentController from './controllers/payment.controller';
 import placeholderController from './controllers/placeholder.controller';
+import authController from './controllers/auth.controller';
+import { authenticateToken } from './middleware/auth.middleware';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -22,7 +24,14 @@ app.get('/api/health', (_req: Request, res: Response) => {
   res.json({ status: 'UP', service: 'node-orchestrator' });
 });
 
-// ── Mount all controllers at /api/v1 (Option B — matches Angular api.service.ts) ──
+app.use('/api/v1/auth', authController);
+
+app.use('/api/v1/profiles', authenticateToken);
+app.use('/api/v1/family-members', authenticateToken);
+app.use('/api/v1/pets', authenticateToken);
+app.use('/api/v1/bookings', authenticateToken);
+app.use('/api/v1/payments', authenticateToken);
+
 app.use('/api/v1', profileController);
 app.use('/api/v1', schedulingController);
 app.use('/api/v1', paymentController);

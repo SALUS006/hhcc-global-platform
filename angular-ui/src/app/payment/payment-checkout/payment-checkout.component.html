@@ -19,7 +19,7 @@
     <!-- Order Summary -->
     <div class="card mb-2">
       <h3>Order Summary</h3>
-      <p class="mt-1">{{ invoice.bookingDescription }}</p>
+      <p class="mt-1">Booking #{{ invoice.bookingId }}</p>
       <hr style="margin:12px 0;border:none;border-top:1px solid var(--border);">
       <div class="flex-between"><span>Subtotal:</span><span>${{ invoice.amount.toFixed(2) }}</span></div>
       <div class="flex-between"><span>Tax:</span><span>${{ tax.toFixed(2) }}</span></div>
