@@ -17,8 +17,8 @@ export class MockDataService {
   ];
 
   private pets: Pet[] = [
-    { id: 1, userId: 2, petName: 'Buddy', petType: 'Dog', breed: 'Golden Retriever', age: 3, weight: 65, specialNotes: 'Friendly, loves fetch' },
-    { id: 2, userId: 2, petName: 'Whiskers', petType: 'Cat', breed: 'Persian', age: 2, weight: 10 }
+    { id: 1, userId: 2, petName: 'Buddy', species: 'Dog', breed: 'Golden Retriever', ageYears: 3, medicalNotes: 'Friendly, loves fetch' },
+    { id: 2, userId: 2, petName: 'Whiskers', species: 'Cat', breed: 'Persian', ageYears: 2 }
   ];
 
   private facilities: CareFacility[] = [

@@ -13,7 +13,7 @@ import { Pet } from '../../shared/models';
   styleUrls: ['./pet-form.component.css']
 })
 export class PetFormComponent implements OnInit {
-  form: Pet = { petName: '', petType: '', breed: '', age: 0 };
+  form: Pet = { petName: '', species: '', breed: '', ageYears: 0 };
   isEdit = false;
   editId = 0;
   petTypes = ['Dog', 'Cat', 'Bird', 'Fish', 'Other'];
@@ -32,7 +32,7 @@ export class PetFormComponent implements OnInit {
   }
 
   onSubmit() {
-    if (!this.form.petName || !this.form.petType) return;
+    if (!this.form.petName || !this.form.species) return;
     if (this.isEdit) {
       this.api.updatePet(this.editId, this.form).subscribe(() => {
         this.router.navigate(['/profile/pets']);

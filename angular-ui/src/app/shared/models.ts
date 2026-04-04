@@ -22,12 +22,10 @@ export interface Pet {
   id?: number;
   userId?: number;
   petName: string;
-  petType: string;
+  species: string;
   breed: string;
-  age: number;
-  weight?: number;
-  photoUrl?: string;
-  specialNotes?: string;
+  ageYears: number;
+  medicalNotes?: string;
 }
 
 export interface CareFacility {

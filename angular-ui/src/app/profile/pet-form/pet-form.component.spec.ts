@@ -43,7 +43,7 @@ describe('PetFormComponent', () => {
   });
 
   it('should call addPet and navigate on valid submit', () => {
-    component.form = { petName: 'Rex', petType: 'Dog', breed: 'Lab', age: 2 };
+    component.form = { petName: 'Rex', species: 'Dog', breed: 'Lab', ageYears: 2 };
     component.onSubmit();
     expect(mockDataService.addPet).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/profile/pets']);

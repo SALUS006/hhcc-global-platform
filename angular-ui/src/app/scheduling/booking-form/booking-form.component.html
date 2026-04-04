@@ -27,7 +27,7 @@
         <label for="pet">Select Pet *</label>
         <select id="pet" class="form-control" [(ngModel)]="selectedMemberId" name="pet" required (ngModelChange)="onPetChange()">
           <option [ngValue]="0">Select...</option>
-          <option *ngFor="let p of pets" [ngValue]="p.id">{{ p.petType === 'Dog' ? '🐕' : '🐈' }} {{ p.petName }}</option>
+          <option *ngFor="let p of pets" [ngValue]="p.id">{{ p.species === 'Dog' ? '🐕' : '🐈' }} {{ p.petName }}</option>
         </select>
       </div>
 

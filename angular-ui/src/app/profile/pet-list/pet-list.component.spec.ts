@@ -10,8 +10,8 @@ describe('PetListComponent', () => {
   let mockDataService: jasmine.SpyObj<MockDataService>;
 
   const fakePets: Pet[] = [
-    { id: 1, petName: 'Buddy', petType: 'Dog', breed: 'Golden', age: 3 },
-    { id: 2, petName: 'Whiskers', petType: 'Cat', breed: 'Persian', age: 2 }
+    { id: 1, petName: 'Buddy', species: 'Dog', breed: 'Golden', ageYears: 3 },
+    { id: 2, petName: 'Whiskers', species: 'Cat', breed: 'Persian', ageYears: 2 }
   ];
 
   beforeEach(async () => {
