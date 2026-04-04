@@ -26,7 +26,12 @@ app.get('/api/health', (_req: Request, res: Response) => {
 
 app.use('/api/v1/auth', authController);
 
-app.use('/api/v1/profiles', authenticateToken);
+app.use('/api/v1/profiles', (req, res, next) => {
+  if (req.method === 'POST') {
+    return next(); // Skip auth for registration
+  }
+  return authenticateToken(req, res, next);
+});
 app.use('/api/v1/family-members', authenticateToken);
 app.use('/api/v1/pets', authenticateToken);
 app.use('/api/v1/bookings', authenticateToken);

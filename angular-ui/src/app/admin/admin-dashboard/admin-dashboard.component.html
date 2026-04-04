@@ -1,76 +1,123 @@
 <div class="container mt-3">
-  <div class="page-header"><h1>Admin Dashboard</h1></div>
+  <div class="page-header">
+    <h1>Admin Dashboard</h1>
+    <button *ngIf="activeTab !== 'activity'" class="btn btn-secondary" (click)="setActiveTab('activity')">← Back to Overview</button>
+  </div>
 
   <!-- KPI Cards -->
   <div class="grid grid-4 mb-3">
-    <div class="card kpi-card">
+    <div class="card kpi-card" (click)="setActiveTab('users')" [class.active]="activeTab === 'users'" style="cursor:pointer">
       <div class="kpi-icon">👥</div>
       <div class="kpi-value">{{ stats.users }}</div>
       <div class="kpi-label">Users</div>
     </div>
-    <div class="card kpi-card">
+    <div class="card kpi-card" (click)="setActiveTab('bookings')" [class.active]="activeTab === 'bookings'" style="cursor:pointer">
       <div class="kpi-icon">📅</div>
       <div class="kpi-value">{{ stats.bookings }}</div>
       <div class="kpi-label">Bookings</div>
     </div>
-    <div class="card kpi-card">
+    <div class="card kpi-card" (click)="setActiveTab('revenue')" [class.active]="activeTab === 'revenue'" style="cursor:pointer">
       <div class="kpi-icon">💰</div>
       <div class="kpi-value">${{ stats.revenue.toFixed(0) }}</div>
       <div class="kpi-label">Revenue</div>
     </div>
-    <div class="card kpi-card">
+    <div class="card kpi-card" (click)="setActiveTab('facilities')" [class.active]="activeTab === 'facilities'" style="cursor:pointer">
       <div class="kpi-icon">🏢</div>
       <div class="kpi-value">{{ stats.facilities }}</div>
       <div class="kpi-label">Facilities</div>
     </div>
   </div>
 
-  <div class="grid grid-2">
-    <!-- Recent Activity -->
-    <div class="card">
-      <h3>Recent Activity</h3>
-      <div class="activity-list mt-2">
-        <div class="activity-item" *ngFor="let a of activities">
-          <span class="activity-time">🕐 {{ a.time }}</span>
-          <span>{{ a.text }}</span>
-        </div>
+  <!-- Overview Tab -->
+  <div *ngIf="activeTab === 'activity'" class="card">
+    <h3>Recent Activity</h3>
+    <div class="activity-list mt-2">
+      <div class="activity-item" *ngFor="let a of activities">
+        <span class="activity-time">🕐 {{ a.time }}</span>
+        <span>{{ a.text }}</span>
       </div>
-    </div>
-
-    <!-- User Management -->
-    <div class="card">
-      <div class="flex-between mb-2">
-        <h3>User Management</h3>
-      </div>
-      <table class="table">
-        <thead><tr><th>ID</th><th>Name</th><th>Role</th></tr></thead>
-        <tbody>
-          <tr *ngFor="let u of users">
-            <td>{{ u.id }}</td>
-            <td>{{ u.fullName }}</td>
-            <td><span class="badge" [class.badge-danger]="u.role==='Admin'" [class.badge-info]="u.role==='Customer'">{{ u.role }}</span></td>
-          </tr>
-        </tbody>
-      </table>
     </div>
   </div>
 
-  <!-- Facility Management -->
-  <div class="card mt-3">
+  <!-- Users Tab -->
+  <div *ngIf="activeTab === 'users'" class="card">
+    <div class="flex-between mb-2">
+      <h3>User Management</h3>
+    </div>
+    <table class="table">
+      <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let u of users">
+          <td>{{ u.id }}</td>
+          <td>{{ u.fullName }}</td>
+          <td>{{ u.email }}</td>
+          <td><span class="badge" [class.badge-danger]="u.role==='Admin' || u.role==='ADMIN'" [class.badge-info]="u.role==='Customer' || u.role==='CUSTOMER'">{{ u.role }}</span></td>
+          <td>
+            <button class="btn btn-sm btn-secondary">Edit</button>
+            <button class="btn btn-sm btn-primary" style="margin-left:8px;" (click)="setActiveTab('bookings')">Bookings</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Bookings Tab -->
+  <div *ngIf="activeTab === 'bookings'" class="card">
+    <div class="flex-between mb-2">
+      <h3>Booking Management</h3>
+    </div>
+    <table class="table mt-2">
+      <thead><tr><th>Booking ID</th><th>User ID</th><th>Facility</th><th>Care Type</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let b of bookings">
+          <td>BK-{{ b.id?.toString()?.padStart(3, '0') }}</td>
+          <td>User #{{ b.userId }}</td>
+          <td>Facility #{{ b.facilityId }}</td>
+          <td>{{ b.careType }}</td>
+          <td><span class="badge">{{ b.status }}</span></td>
+          <td><button class="btn btn-sm btn-secondary">Edit</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Revenue Breakdown Tab -->
+  <div *ngIf="activeTab === 'revenue'" class="card">
+    <div class="flex-between mb-2">
+      <h3>Revenue Breakdown</h3>
+    </div>
+    <table class="table mt-2">
+      <thead><tr><th>Invoice ID</th><th>Booking ID</th><th>Amount</th><th>Status</th><th>Payment Method</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let i of invoices">
+          <td>INV-{{ i.id }}</td>
+          <td>BK-{{ i.bookingId }}</td>
+          <td>${{ i.amount.toFixed(2) }}</td>
+          <td><span class="badge" [class.badge-success]="i.status==='Paid' || i.status==='PAID'">{{ i.status }}</span></td>
+          <td>{{ i.paymentMethod }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Facilities Tab -->
+  <div *ngIf="activeTab === 'facilities'" class="card">
     <div class="flex-between mb-2">
       <h3>Facility Management</h3>
+      <button class="btn btn-sm btn-primary">+ Add Facility</button>
     </div>
-    <div class="grid grid-2">
-      <div class="facility-admin-card" *ngFor="let f of facilities">
-        <div class="flex-between">
-          <div>
-            <strong>{{ f.facilityName }}</strong>
-            <p class="text-light">{{ f.locationAddress }}</p>
-            <p class="text-light">{{ f.description }}</p>
-          </div>
-          <span class="badge badge-success">🟢 Active</span>
-        </div>
-      </div>
-    </div>
+    <table class="table">
+      <thead><tr><th>ID</th><th>Facility Name</th><th>Address</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let f of facilities">
+          <td>{{ f.id }}</td>
+          <td><strong>{{ f.facilityName }}</strong><br><small class="text-light">{{ f.description }}</small></td>
+          <td>{{ f.locationAddress }}</td>
+          <td><span class="badge badge-success">🟢 Active</span></td>
+          <td><button class="btn btn-sm btn-secondary">Edit</button></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
+
 </div>
