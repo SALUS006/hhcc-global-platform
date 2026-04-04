@@ -191,4 +191,29 @@ public class PaymentInvoiceController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    /**
+     * Pays a payment invoice.
+     * 
+     * Marks an unpaid invoice as PAID.
+     *
+     * @param id the ID of the payment invoice to pay.
+     * @return ResponseEntity with updated invoice.
+     */
+    @PutMapping("/invoices/{id}/pay")
+    public ResponseEntity<PaymentInvoiceResponse> payInvoice(
+            @PathVariable("id") Long id) {
+        
+        log.info("PAY payment invoice request - invoiceId: {}", id);
+
+        try {
+            PaymentInvoiceResponse response = paymentInvoiceService.payInvoice(id);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            log.error("Error paying payment invoice", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 }

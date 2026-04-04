@@ -48,13 +48,15 @@ router.get('/payments/:id', async (req: Request, res: Response) => {
 });
 
 // PUT /payments/:id/pay — mark invoice as paid
-// TODO: Java PaymentInvoiceController has no "pay" endpoint yet. This is an in-memory stub for MVP.
 router.put('/payments/:id/pay', async (req: Request, res: Response) => {
-  const payment = stubPayments.find(p => p.id === Number(req.params.id));
-  if (!payment) return res.status(404).json({ error: 'Not Found' });
-  payment.status = 'PAID';
-  payment.paymentDate = new Date().toISOString();
-  return res.json(payment);
+  if (STUB_MODE) {
+    const payment = stubPayments.find(p => p.id === Number(req.params.id));
+    if (!payment) return res.status(404).json({ error: 'Not Found' });
+    payment.status = 'PAID';
+    payment.paymentDate = new Date().toISOString();
+    return res.json(payment);
+  }
+  await proxyRequest('PUT', `${PAYMENT_SERVICE_URL}/payment/invoices/${req.params.id}/pay`, req, res);
 });
 
 // POST /payments/:id/refund — refund invoice

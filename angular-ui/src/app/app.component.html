@@ -3,13 +3,15 @@
     <a routerLink="/" class="logo">🏠 HHCC</a>
     <button class="hamburger" (click)="menuOpen = !menuOpen" aria-label="Toggle menu">☰</button>
     <ul class="nav-links" [class.open]="menuOpen" role="navigation">
-      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="menuOpen=false">Home</a></li>
-      <li><a routerLink="/profile/family" routerLinkActive="active" (click)="menuOpen=false">Profile</a></li>
-      <li><a routerLink="/scheduling" routerLinkActive="active" (click)="menuOpen=false">Scheduling</a></li>
-      <li><a routerLink="/payment" routerLinkActive="active" (click)="menuOpen=false">Payment</a></li>
-      <li><a routerLink="/support" routerLinkActive="active" (click)="menuOpen=false">Support</a></li>
-      <li><a routerLink="/admin" routerLinkActive="active" (click)="menuOpen=false">Admin</a></li>
-      <li><a routerLink="/register" class="btn btn-primary btn-sm" (click)="menuOpen=false">Register</a></li>
+      <li><a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact:true}" (click)="menuOpen=false" *ngIf="!authService.isAdmin()">Home</a></li>
+      <li><a routerLink="/profile/family" routerLinkActive="active" (click)="menuOpen=false" *ngIf="authService.isLoggedIn() && !authService.isAdmin()">Profile</a></li>
+      <li><a routerLink="/scheduling" routerLinkActive="active" (click)="menuOpen=false" *ngIf="authService.isLoggedIn() && !authService.isAdmin()">Scheduling</a></li>
+      <li><a routerLink="/payment" routerLinkActive="active" (click)="menuOpen=false" *ngIf="authService.isLoggedIn() && !authService.isAdmin()">Payment</a></li>
+      <li><a routerLink="/support" routerLinkActive="active" (click)="menuOpen=false" *ngIf="!authService.isAdmin()">Support</a></li>
+      <li><a routerLink="/admin" routerLinkActive="active" (click)="menuOpen=false" *ngIf="authService.isAdmin()">Admin</a></li>
+      <li><a routerLink="/register" class="btn btn-primary btn-sm" style="margin-right: 8px;" (click)="menuOpen=false" *ngIf="!authService.isLoggedIn()">Register</a></li>
+      <li><a routerLink="/login" class="btn btn-primary btn-sm" (click)="menuOpen=false" *ngIf="!authService.isLoggedIn()">Login</a></li>
+      <li><a href="javascript:void(0)" class="btn btn-primary btn-sm" (click)="logout()" *ngIf="authService.isLoggedIn()">Logout</a></li>
     </ul>
   </div>
 </nav>

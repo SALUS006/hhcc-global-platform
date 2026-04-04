@@ -162,6 +162,34 @@ public class PaymentInvoiceService {
     }
 
     /**
+     * Pays a payment invoice.
+     * 
+     * Marks the invoice with the specified ID as PAID.
+     * 
+     * @param invoiceId the ID of the invoice to pay
+     * @return the PaymentInvoiceResponse with updated status
+     */
+    public PaymentInvoiceResponse payInvoice(Long invoiceId) {
+        log.info("Processing payment for invoice ID: {}", invoiceId);
+        
+        Optional<PaymentInvoice> invoiceOpt = paymentInvoiceRepository.findById(invoiceId);
+        
+        if (invoiceOpt.isEmpty()) {
+            throw new IllegalArgumentException("Invoice not found: " + invoiceId);
+        }
+
+        PaymentInvoice invoice = invoiceOpt.get();
+        invoice.setStatus("PAID");
+        invoice.setPaymentDate(LocalDateTime.now());
+        invoice.setUpdatedBy(1L);
+        
+        PaymentInvoice updatedInvoice = paymentInvoiceRepository.update(invoice);
+        
+        log.info("Invoice paid successfully: {}", invoiceId);
+        return mapToResponse(updatedInvoice);
+    }
+
+    /**
      * Maps a PaymentInvoice entity to a PaymentInvoiceResponse DTO.
      * 
      * @param invoice the PaymentInvoice entity to map
