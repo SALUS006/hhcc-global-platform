@@ -15,14 +15,13 @@
 
   <div class="grid grid-3" *ngIf="pets.length > 0">
     <div class="card pet-card" *ngFor="let p of pets">
-      <div class="pet-icon">{{ p.petType === 'Dog' ? '🐕' : p.petType === 'Cat' ? '🐈' : '🐾' }}</div>
+      <div class="pet-icon">{{ p.species === 'Dog' ? '🐕' : p.species === 'Cat' ? '🐈' : '🐾' }}</div>
       <h3>{{ p.petName }}</h3>
       <p class="breed">{{ p.breed }}</p>
       <div class="pet-details">
-        <span>Age: {{ p.age }} years</span>
-        <span *ngIf="p.weight">Weight: {{ p.weight }} lbs</span>
+        <span>Age: {{ p.ageYears }} years</span>
       </div>
-      <p *ngIf="p.specialNotes" class="notes">{{ p.specialNotes }}</p>
+      <p *ngIf="p.medicalNotes" class="notes">{{ p.medicalNotes }}</p>
       <div class="pet-actions">
         <a [routerLink]="['/profile/pets/edit', p.id]" class="btn btn-sm btn-secondary">Edit</a>
         <button class="btn btn-sm btn-danger" (click)="onDelete(p.id!)">Delete</button>

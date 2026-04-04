@@ -13,7 +13,7 @@ describe('BookingFormComponent', () => {
     { id: 1, fullName: 'Sarah Doe', relationship: 'Daughter', dateOfBirth: '2018-03-15', careType: 'Child Care' }
   ];
   const fakePets: Pet[] = [
-    { id: 1, petName: 'Buddy', petType: 'Dog', breed: 'Golden', age: 3 }
+    { id: 1, petName: 'Buddy', species: 'Dog', breed: 'Golden', ageYears: 3 }
   ];
   const fakeFacilities: CareFacility[] = [
     { id: 1, facilityName: 'Downtown Pet Care', locationAddress: '123 Main St', description: 'Premium pet care.', isActive: true }

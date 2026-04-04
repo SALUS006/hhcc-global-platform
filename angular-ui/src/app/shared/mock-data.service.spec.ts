@@ -60,14 +60,14 @@ describe('MockDataService', () => {
 
   // Pet CRUD
   it('should add a pet with an assigned id', () => {
-    const pet: Pet = { petName: 'Rex', petType: 'Dog', breed: 'Lab', age: 1 };
+    const pet: Pet = { petName: 'Rex', species: 'Dog', breed: 'Lab', ageYears: 1 };
     const result = service.addPet(pet);
     expect(result.id).toBeDefined();
     expect(service.getPets().length).toBe(3);
   });
 
   it('should update an existing pet', () => {
-    const updated: Pet = { petName: 'Updated', petType: 'Cat', breed: 'Siamese', age: 5 };
+    const updated: Pet = { petName: 'Updated', species: 'Cat', breed: 'Siamese', ageYears: 5 };
     service.updatePet(1, updated);
     const found = service.getPet(1);
     expect(found?.petName).toBe('Updated');

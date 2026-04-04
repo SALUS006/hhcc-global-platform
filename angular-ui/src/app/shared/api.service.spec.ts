@@ -83,7 +83,7 @@ describe('ApiService', () => {
   });
 
   it('should POST /api/v1/pets', () => {
-    const p: Pet = { petName: 'Rex', petType: 'Dog', breed: 'Lab', age: 2 };
+    const p: Pet = { petName: 'Rex', species: 'Dog', breed: 'Lab', ageYears: 2 };
     service.createPet(p).subscribe();
     const req = expectHeader('/api/v1/pets', 'POST');
     expect(req.request.body).toEqual(p);
@@ -91,7 +91,7 @@ describe('ApiService', () => {
   });
 
   it('should PUT /api/v1/pets/:id', () => {
-    const p: Pet = { petName: 'Rex', petType: 'Dog', breed: 'Lab', age: 3 };
+    const p: Pet = { petName: 'Rex', species: 'Dog', breed: 'Lab', ageYears: 3 };
     service.updatePet(1, p).subscribe();
     const req = expectHeader('/api/v1/pets/1', 'PUT');
     expect(req.request.body).toEqual(p);

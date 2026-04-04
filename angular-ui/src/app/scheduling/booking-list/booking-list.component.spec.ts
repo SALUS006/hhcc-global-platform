@@ -35,7 +35,7 @@ describe('BookingListComponent', () => {
   ];
 
   const fakePets: Pet[] = [
-    { id: 101, userId: 1, petName: 'Buddy', petType: 'Dog', breed: 'Golden Retriever', age: 3 }
+    { id: 101, userId: 1, petName: 'Buddy', species: 'Dog', breed: 'Golden Retriever', ageYears: 3 }
   ];
 
   beforeEach(async () => {
