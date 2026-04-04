@@ -8,7 +8,7 @@ Welcome to the HHCC Global Platform! This repository contains the structural mon
 - **[Architecture & Solution Design](./solution/architecture_design.md)**: Details the exact integration patterns, Nginx proxying, and the exclusive DB architectural design.
 - **[Profile API Swagger](./solution/swagger-profile.yaml)**: Strict OpenAPI contract for Tanuj & Sandeep. *(Contract defined — implementation complete ✅)*
 - **[Scheduling API Swagger](./solution/swagger-scheduling.yaml)**: Strict OpenAPI contract for Arturo & Naveen. *(Contract defined — implementation complete ✅)*
-- **[Payment API Swagger](./solution/swagger-payment.yaml)**: Strict OpenAPI contract for Alpesh & Naga. *(Contract defined — implementation in progress 🔧)*
+- **[Payment API Swagger](./solution/swagger-payment.yaml)**: Strict OpenAPI contract for Alpesh & Naga. *(Contract defined — implementation complete ✅)*
 
 ## 🚀 Local Workspace & Deployment Strategies
 
@@ -117,18 +117,22 @@ All endpoints are exposed through the respective Spring Boot service. The Node.j
 | `GET` | `/api/v1/scheduling/bookings/{userId}` | List bookings for a user (optional `?status=` filter) | UC#7, UC#8 | ✅ Live |
 | `GET` | `/api/v1/scheduling/bookings/{userId}/{id}` | Get a single booking | UC#7, UC#8 | ✅ Live |
 | `DELETE` | `/api/v1/scheduling/bookings/{userId}/{id}` | Cancel a booking (soft-cancel) | UC#7, UC#8 | ✅ Live |
+| `GET` | `/api/v1/scheduling/bookings/admin/all` | List all bookings across all users for admin | Admin | ✅ Live |
 
 > **Note:** The Scheduling Service (MS2) is fully deployed with facility listing and booking CRUD. Bookings use a polymorphic `dependentType` (FAMILY_MEMBER or PET) + `dependentId` pattern to support both UC#7 and UC#8.
 
 ### Payment Service — `http://localhost:8082`
 
-> 🔧 **Sprint Status**: Only the `/health` endpoint is live. The `/invoices` routes are **planned** and being implemented by Alpesh (Node.js) & Naga (Spring Boot) during Days 2–3.
+> ✅ **Sprint Status**: All `/invoices` and `/payments` endpoints are fully live as implemented by Alpesh (Node.js) & Naga (Spring Boot).
 
 | Method | Endpoint | Description | UC | Status |
 |--------|----------|-------------|----|---------|
 | `GET` | `/api/v1/payment/health` | Health check | — | ✅ Live |
-| `GET` | `/api/v1/payment/invoices/{bookingId}` | Get invoice for a booking | UC#9 |✅ Live  |
+| `GET` | `/api/v1/payment/invoices` | List all invoices | UC#9 | ✅ Live |
+| `GET` | `/api/v1/payment/invoices/{bookingId}` | Get invoice for a booking | UC#9 | ✅ Live |
 | `POST` | `/api/v1/payment/invoices` | Submit a payment (mock) | UC#9 | ✅ Live |
+| `PUT` | `/api/v1/payment/invoices/{id}/pay` | Mark invoice as paid | UC#9 | ✅ Live |
+| `POST` | `/api/v1/payment/invoices/{id}/refund` | Refund invoice | UC#9 | ✅ Live |
 
 ## ⚖️ Team Governance Policies
 As established in Section 8 of the Architecture document, strictly abide by vertical domain mapping. **Sandeep** and **Naveen** are your core DB Architects—no developer outside of them should alter the Database Initialization Scripts. Maintain strict boundaries so we avoid merge conflict bottlenecks!
