@@ -85,6 +85,14 @@ The URL chain is: Angular → nginx → Node → Java
      - Add the endpoint to Java, OR
      - Have Node inject the userId from the header
 
+5. **Admin Dashboards restricted to single mocked user**
+   - Issue: The frontend Admin Dashboard only shows bookings for the mock user because it calls a constrained API.
+   - Fix Pattern (Chain of Thought):
+     1. Add a `findAll()` unrestricted bypass in the Java `CareBookingRepository`.
+     2. Open a `GET /admin/all` Controller endpoint in Java.
+     3. Map a new proxy route in Node.js (`GET /admin/bookings`).
+     4. Update Angular `api.service.ts` to fetch and display the global data rather than user-level mock data.
+
 ### Fix Pattern:
 
 For each Node proxy route, verify the FULL downstream URL resolves to an actual Java endpoint:
