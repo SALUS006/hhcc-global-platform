@@ -84,6 +84,18 @@ public class CareBookingController {
     }
 
     /**
+     * Lists all bookings across all users.
+     *
+     * @param status optional filter
+     * @return list of matching CareBooking instances
+     */
+    @GetMapping("/admin/all")
+    public List<CareBooking> getAllBookingsAdmin(@RequestParam(required = false) String status) {
+        log.info("Listing ALL bookings for admin, status filter={}", status);
+        return repository.findAll(status);
+    }
+
+    /**
      * Retrieves a single booking by ID, scoped to the owning user.
      *
      * @param userId

@@ -45,6 +45,14 @@ router.get('/bookings', async (req: Request, res: Response) => {
   await proxyRequest('GET', `${SCHEDULING_SERVICE_URL}/scheduling/bookings/${userId}`, req, res);
 });
 
+// GET /admin/bookings — list all bookings (for Admin Dashboard)
+router.get('/admin/bookings', async (req: Request, res: Response) => {
+  if (STUB_MODE) {
+    return res.json(stubBookings);
+  }
+  await proxyRequest('GET', `${SCHEDULING_SERVICE_URL}/scheduling/bookings/admin/all`, req, res);
+});
+
 // POST /bookings
 router.post('/bookings', async (req: Request, res: Response) => {
   if (STUB_MODE) {

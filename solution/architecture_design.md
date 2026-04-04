@@ -110,13 +110,13 @@ Given the 1-week timeframe, domain logic is strategically grouped into three cor
 - **Domain**: Care Centers, Availability, Pick-up/Drop-off Bookings for both Family Members and Pets.
 - **Responsibilities**: Retrieves care facility catalog (UC#1), manages booking scheduling (UC#7 — family members, UC#8 — pets), polymorphic dependent resolution via `dependent_type` + `dependent_id`.
 - **JDBC Tables**: `care_facility`, `care_booking`
-- **Live Endpoints**: `/api/v1/scheduling/facilities`, `/api/v1/scheduling/bookings`
+- **Live Endpoints**: `/api/v1/scheduling/facilities`, `/api/v1/scheduling/bookings`, `/api/v1/scheduling/bookings/admin/all`
 
 **Microservice 3: Payment Service** — Port `8082` — *owned by Naga* — (MVP Scope)
 - **Domain**: Invoices, Mock Payment Transactions.
 - **Responsibilities**: Captures payment requests (UC#9) and tracks invoice status per booking. Real Stripe/PayPal integration is post-MVP; the 1-week MVP uses `paymentMethod = MOCK` responses.
 - **JDBC Tables**: `payment_invoice`
-- **Planned Endpoints**: `/api/v1/payment/invoices`
+- **Live Endpoints**: `/api/v1/payment/invoices`, `/api/v1/payment/health`
 
 ### 3.4 Database Layer (Single RDBMS)
 - **DBMS**: **MySQL 8.0** — database name: `hhcc_db`
@@ -458,7 +458,7 @@ hhcc-global-platform/
 │   │   ├── pom.xml
 │   │   └── Dockerfile
 │   │
-│   └── payment-service/            # Port 8082 — owned by Naga  🔧 In Progress
+│   └── payment-service/            # Port 8082 — owned by Naga  ✅ LIVE
 │       ├── src/main/java/com/hhcc/payment/
 │       │   └── controller/
 │       │       └── HealthController.java
@@ -475,7 +475,7 @@ hhcc-global-platform/
     ├── requirement.md              # Business requirements & use cases
     ├── swagger-profile.yaml        # OpenAPI — Profile Service (MS1)  ✅ Aligned
     ├── swagger-scheduling.yaml     # OpenAPI — Scheduling Service (MS2)  ✅ Aligned
-    └── swagger-payment.yaml        # OpenAPI — Payment Service (MS3)  🔧 Contract defined
+    └── swagger-payment.yaml        # OpenAPI — Payment Service (MS3)  ✅ Aligned
 ```
 
 ---
