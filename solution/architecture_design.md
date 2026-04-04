@@ -355,13 +355,119 @@ erDiagram
 
 ---
 
-## 8. Team Task Allocation (1-Week Sprint)
+## 8. Systems Interaction & Sequence Diagrams
+
+The following completely decoupled sequence diagrams illustrate the precise interaction chain across our 3-tier architecture. Each front-end payload traverses through Nginx, into the specific Node.js routing bucket, onto the appropriate vertical Spring Boot microservice, and finally directly into MySQL.
+
+### 8.1 User Registration Flow
+```mermaid
+sequenceDiagram
+    participant UI as Angular UI
+    participant BFF as Node Proxy (/api/profile)
+    participant MS1 as Profile Service (MS1)
+    participant DB as MySQL DB
+
+    UI->>BFF: POST /registration {name, email, pass}
+    BFF->>MS1: Forward POST /api/v1/profiles
+    MS1->>DB: INSERT INTO user_profile
+    DB-->>MS1: Returns auto-generated ID
+    MS1-->>BFF: 201 Created (Profile JSON)
+    BFF-->>UI: 201 Created & Login
+```
+
+### 8.2 Family Management Flow
+```mermaid
+sequenceDiagram
+    participant UI as Angular UI
+    participant BFF as Node Proxy (/api/profile)
+    participant MS1 as Profile Service (MS1)
+    participant DB as MySQL DB
+
+    UI->>BFF: POST /family-members {name, dob} <br>Header: X-Mock-User-Id
+    BFF->>BFF: Extract userId from header
+    BFF->>MS1: Forward POST /api/v1/profiles/{userId}/family-members
+    MS1->>DB: INSERT INTO family_member
+    DB-->>MS1: Returns auto-generated Family ID
+    MS1-->>BFF: 201 Created (FamilyMember)
+    BFF-->>UI: Render UI Success Toast
+```
+
+### 8.3 Pet Management Flow
+```mermaid
+sequenceDiagram
+    participant UI as Angular UI
+    participant BFF as Node Proxy (/api/profile)
+    participant MS1 as Profile Service (MS1)
+    participant DB as MySQL DB
+
+    UI->>BFF: GET /pets <br>Header: X-Mock-User-Id
+    BFF->>MS1: Forward GET /api/v1/profiles/{userId}/pets
+    MS1->>DB: SELECT * FROM pet_profile WHERE user_id = ?
+    DB-->>MS1: List of Pet objects
+    MS1-->>BFF: 200 OK (Pets JSON array)
+    BFF-->>UI: Render Pet Card grid
+```
+
+### 8.4 Scheduling Flow
+```mermaid
+sequenceDiagram
+    participant UI as Angular UI
+    participant BFF as Node Proxy (/api/scheduling)
+    participant MS2 as Scheduling Service (MS2)
+    participant DB as MySQL DB
+
+    UI->>BFF: POST /bookings <br>{facilityId, pickupTime, dependentType}
+    BFF->>BFF: Extract & Inject X-Mock-User-Id
+    BFF->>MS2: Forward POST /api/v1/scheduling/bookings
+    MS2->>DB: Pre-check if care_facility is ACTIVE
+    MS2->>DB: INSERT INTO care_booking
+    DB-->>MS2: Returns Booking ID
+    MS2-->>BFF: 201 Created (Booking JSON)
+    BFF-->>UI: Render Booking Success Redirect
+```
+
+### 8.5 Payment Flow
+```mermaid
+sequenceDiagram
+    participant UI as Angular UI
+    participant BFF as Node Proxy (/api/payment)
+    participant MS3 as Payment Service (MS3)
+    participant DB as MySQL DB
+
+    UI->>BFF: PUT /invoices/{id}/pay <br>{method: 'CREDIT_CARD'}
+    BFF->>MS3: Forward PUT /api/v1/payment/invoices/{id}/pay
+    MS3->>DB: UPDATE payment_invoice SET status='PAID'
+    DB-->>MS3: Row Updated Confirmation
+    MS3-->>BFF: 200 OK (Updated Invoice)
+    BFF-->>UI: Show Payment Confirmed Screen
+```
+
+### 8.6 Admin Flow (Global Aggregation Example)
+```mermaid
+sequenceDiagram
+    participant UI as Angular UI
+    participant BFF as Node Proxy (/api/admin)
+    participant MS2 as Scheduling Service (MS2)
+    participant DB as MySQL DB
+
+    UI->>BFF: GET /admin/bookings
+    Note over BFF: Bypass standard X-Mock-User-Id filters
+    BFF->>MS2: Forward GET /api/v1/scheduling/bookings/admin/all
+    MS2->>DB: SELECT * FROM care_booking (No user filter)
+    DB-->>MS2: Global Array of Bookings
+    MS2-->>BFF: 200 OK (All Bookings)
+    BFF-->>UI: Feed Revenue Trend Bar Chart & Mgmt Table
+```
+
+---
+
+## 9. Team Task Allocation (1-Week Sprint)
 
 Leveraging the **Modular Vertical Feature Ownership** pattern, the team of 7 is structured perfectly to minimize bottlenecks. The Full-Stack developers (Tanuj, Arturo, Alpesh) will own end-to-end feature pipelines (Angular UI + Node Orchestration), while the Backend/Architect heavy-hitters (Sandeep, Naveen, Naga) handle the core Spring Boot JDBC complexities and DB mappings.
 
 *(Note: Akhil is out of office for Days 1-4. His capacity is reserved strictly for Day 5.)*
 
-### 8.1 Vertical Feature Owners (Full-Stack Squad)
+### 9.1 Vertical Feature Owners (Full-Stack Squad)
 These developers own the top layer of specific domains and build downwards toward the backend.
 
 - **Tanuj (UI / Node / Java)**: *Owner of the Profile & Identity Domain*
@@ -371,7 +477,7 @@ These developers own the top layer of specific domains and build downwards towar
 - **Alpesh (UI / Node / Java)**: *Owner of the Payment & Feedback Domain*
   - **Tasks**: Builds the Angular Payment Dashboard and Feedback/Support screen, implements `/api/payment` and `/api/feedback` Node.js endpoints, and tests mock payment flows and feedback submission against Naga's Java service.
 
-### 8.2 Core Backend, Database, & Infrastructure Squad
+### 9.2 Core Backend, Database, & Infrastructure Squad
 These developers own the absolute bedrock of the application. **Sandeep and Naveen explicitly own all Database Schema Design and Table generation** across all domains, completely abstracting DB creation away from the rest of the team.
 
 - **Sandeep (Solution Architect / Backend / DB)**: *Project Lead & DB Architect*
@@ -385,7 +491,7 @@ These developers own the absolute bedrock of the application. **Sandeep and Nave
 
 ---
 
-## 9. Project Directory Structure Diagram
+## 10. Project Directory Structure Diagram
 
 To ensure all 7 team members have a shared understanding of where their specific code resides without stepping on each other's toes, the final mono-repo structure should be laid out as follows:
 
@@ -482,25 +588,25 @@ hhcc-global-platform/
 
 ## Local Workspace Setup & Deployment Guide
 
-### 1. Prerequisites
+### 10.1 Prerequisites
 - **Docker Desktop** installed and running
 - **Node.js** (v22+) and **npm** (for local builds)
 - **Java 21 (LTS)** and **Maven** (for local Spring Boot builds)
 - **Git** (for cloning the repository)
 
-### 2. Clone the Repository
+### 10.2 Clone the Repository
 ```bash
 git clone <your-repo-url>
 cd hhcc-global-platform
 ```
 
-### 3. Database Setup (Local)
+### 10.3 Database Setup (Local)
 - The database is provisioned automatically by Docker Compose, but you can also create it manually:
   1. Install **MySQL 8+** locally (if not using Docker).
   2. Use DBeaver or your preferred SQL client to connect.
   3. Run the scripts in `database/init-scripts/01-schema-mysql.sql` and `02-mock-data-mysql.sql` to create all 8 tables and insert mock data.
 
-### 4. Deploy All Services at Once (Recommended)
+### 10.4 Deploy All Services at Once (Recommended)
 - Use Docker Compose to spin up the entire stack (Angular UI, Node.js Orchestrator placeholder, all Spring Boot microservices, and MySQL):
 
 ```bash
@@ -508,7 +614,7 @@ docker-compose -f docker-compose.full.yml up --build -d
 ```
 - Once running, the UI is available at [http://localhost](http://localhost) and APIs at their respective ports (see §6.3).
 
-### 5. Deploy Individual Microservices (For Development)
+### 10.5 Deploy Individual Microservices (For Development)
 - You can run any service individually for debugging or development:
 
 #### a. Angular UI
@@ -542,7 +648,7 @@ docker build -t <service-name> ./<service-folder>
 docker run -p <host-port>:<container-port> <service-name>
 ```
 
-### 6. Validate Deployment
+### 10.6 Validate Deployment
 - **Containers**: Run `docker ps` to confirm all 6 containers are running: `hhcc-mysql`, `ms-profile-service`, `ms-scheduling-service`, `ms-payment-service`, `hhcc-angular-ui`, `node-orchestrator`.
 - **UI**: Open [http://localhost](http://localhost) — Angular app served by Nginx.
 - **Health Checks** (all should return `{"service":"UP","database":"CONNECTED"}`):
@@ -551,7 +657,7 @@ docker run -p <host-port>:<container-port> <service-name>
   - Payment: [http://localhost:8082/api/v1/payment/health](http://localhost:8082/api/v1/payment/health)
 - **Database**: Connect with DBeaver to `localhost:3306`, database `hhcc_db`, user `root`, password `hhcc_password`. Enable `allowPublicKeyRetrieval=true` in driver properties.
 
-### 7. Troubleshooting
+### 10.7 Troubleshooting
 - If a service fails, check logs with `docker-compose logs <service-name>` or `docker logs <container-id>`.
 - Ensure ports are not in use by other applications.
 - For database issues, ensure the DB container is healthy and accessible.

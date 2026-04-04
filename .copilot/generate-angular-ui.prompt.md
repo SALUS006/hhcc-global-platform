@@ -193,6 +193,9 @@ Every component must be `standalone: true` and import only what it needs.
 
 **UC12 — AdminDashboardComponent** (`app/admin/admin-dashboard/admin-dashboard.component.ts`):
 - 4 KPI cards: Users 👥, Bookings 📅, Revenue 💰, Facilities 🏢 — values computed from mock data.
+- Revenue Breakdown screen must include filters to select Facility, Start Date, and End Date.
+- Create a secondary right-side panel next to the Revenue Breakdown table. Use purely native CSS flexbox to design a vertical bar chart representing revenue trends by date. Do not import external logic like chart.js.
+- Booking Management table with functional 'Approve' action button restricted to 'Paid' bookings.
 - Two-column grid: Recent Activity feed (5 hardcoded entries with timestamps), User Management table (ID, Name, Role badge).
 - Facility Management section with facility cards showing name, address, description, active status badge.
 
