@@ -60,8 +60,14 @@ export class ApiService {
   getBookings(): Observable<CareBooking[]> {
     return this.http.get<CareBooking[]>(`${this.baseUrl}/bookings`);
   }
+  getAllBookings(): Observable<CareBooking[]> {
+    return this.http.get<CareBooking[]>(`${this.baseUrl}/admin/bookings`);
+  }
   createBooking(booking: CareBooking): Observable<CareBooking> {
     return this.http.post<CareBooking>(`${this.baseUrl}/bookings`, booking);
+  }
+  updateBooking(id: number, booking: Partial<CareBooking>): Observable<CareBooking> {
+    return this.http.put<CareBooking>(`${this.baseUrl}/bookings/${id}`, booking);
   }
 
   // ── Payments ──

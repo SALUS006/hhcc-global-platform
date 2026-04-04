@@ -67,15 +67,25 @@
       <h3>Booking Management</h3>
     </div>
     <table class="table mt-2">
-      <thead><tr><th>Booking ID</th><th>User ID</th><th>Facility</th><th>Care Type</th><th>Status</th><th>Actions</th></tr></thead>
+      <thead><tr><th>Booking ID</th><th>User ID</th><th>Facility</th><th>Care Type</th><th>Payment</th><th>Status</th><th>Actions</th></tr></thead>
       <tbody>
         <tr *ngFor="let b of bookings">
           <td>BK-{{ b.id?.toString()?.padStart(3, '0') }}</td>
           <td>User #{{ b.userId }}</td>
           <td>Facility #{{ b.facilityId }}</td>
           <td>{{ b.careType }}</td>
+          <td><span class="badge" [class.badge-success]="b.paymentStatus==='Paid' || b.paymentStatus==='PAID'">{{ b.paymentStatus }}</span></td>
           <td><span class="badge">{{ b.status }}</span></td>
-          <td><button class="btn btn-sm btn-secondary">Edit</button></td>
+          <td>
+            <button class="btn btn-sm"
+                    [class.btn-primary]="b.paymentStatus==='Paid' || b.paymentStatus==='PAID'"
+                    [class.btn-secondary]="(b.paymentStatus!=='Paid' && b.paymentStatus!=='PAID')"
+                    [disabled]="(b.paymentStatus!=='Paid' && b.paymentStatus!=='PAID') || b.status === 'Approved'"
+                    (click)="approveBooking(b)">
+              Approve
+            </button>
+            <button class="btn btn-sm btn-secondary" style="margin-left:8px;">Edit</button>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -85,19 +95,60 @@
   <div *ngIf="activeTab === 'revenue'" class="card">
     <div class="flex-between mb-2">
       <h3>Revenue Breakdown</h3>
+      <div class="filters flex" style="display:flex; gap: 15px;">
+        <div style="display:flex; align-items:center; gap:5px;">
+          <label>Facility:</label>
+          <select [(ngModel)]="revenueFacilityId" class="form-control" style="width:auto; padding:4px;">
+            <option value="">All Facilities</option>
+            <option *ngFor="let f of facilities" [value]="f.id?.toString()">{{ f.facilityName }}</option>
+          </select>
+        </div>
+        <div style="display:flex; align-items:center; gap:5px;">
+          <label>Start Date:</label>
+          <input type="date" [(ngModel)]="revenueStartDate" class="form-control" style="width:auto; padding:4px;">
+        </div>
+        <div style="display:flex; align-items:center; gap:5px;">
+          <label>End Date:</label>
+          <input type="date" [(ngModel)]="revenueEndDate" class="form-control" style="width:auto; padding:4px;">
+        </div>
+      </div>
     </div>
-    <table class="table mt-2">
-      <thead><tr><th>Invoice ID</th><th>Booking ID</th><th>Amount</th><th>Status</th><th>Payment Method</th></tr></thead>
-      <tbody>
-        <tr *ngFor="let i of invoices">
-          <td>INV-{{ i.id }}</td>
-          <td>BK-{{ i.bookingId }}</td>
-          <td>${{ i.amount.toFixed(2) }}</td>
-          <td><span class="badge" [class.badge-success]="i.status==='Paid' || i.status==='PAID'">{{ i.status }}</span></td>
-          <td>{{ i.paymentMethod }}</td>
-        </tr>
-      </tbody>
-    </table>
+    
+    <div class="grid grid-2" style="display:grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+      <!-- Table Panel -->
+      <div style="overflow-x:auto;">
+        <table class="table mt-2">
+          <thead><tr><th>Invoice ID</th><th>Booking ID</th><th>Facility</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let i of filteredInvoices">
+              <td>INV-{{ i.id }}</td>
+              <td>BK-{{ i.bookingId }}</td>
+              <td>{{ i.facilityName }}</td>
+              <td>{{ i.date }}</td>
+              <td>${{ i.amount.toFixed(2) }}</td>
+              <td><span class="badge" [class.badge-success]="i.status==='Paid' || i.status==='PAID'">{{ i.status }}</span></td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="filteredInvoices.length === 0" style="padding: 20px; text-align: center; color: #888;">
+           No revenue data found for selected filters.
+        </div>
+      </div>
+
+      <!-- Trend Panel -->
+      <div class="card" style="background:#f8f9fa; margin:0;">
+        <h4>Revenue Trend (Paid)</h4>
+        <div class="trend-chart" style="display:flex; align-items:flex-end; gap:8px; height: 250px; padding-top:25px; border-bottom:1px solid #ccc; margin-top:20px;">
+          <div *ngFor="let t of revenueTrendData" style="flex:1; display:flex; flex-direction:column; align-items:center; min-width: 0;">
+             <div class="bar" [style.height.px]="(t.amount / maxTrendAmount) * 200" style="width: 100%; background: #007bff; border-radius: 4px 4px 0 0; min-height: 5px; transition: height 0.3s; position:relative;">
+                <span class="tooltip" style="position:absolute; top:-20px; left:50%; transform:translateX(-50%); font-size:11px; font-weight:bold; color:#333;">${{ t.amount.toFixed(0) }}</span>
+             </div>
+             <div class="label" style="font-size:10px; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; text-align:center;">{{ t.date | date:'shortDate' }}</div>
+          </div>
+          <div *ngIf="revenueTrendData.length === 0" style="align-self:center; width:100%; text-align:center; color:#888;">No Data Available</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Facilities Tab -->

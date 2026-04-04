@@ -70,6 +70,19 @@ public class CareBookingRepository {
     }
 
     /**
+     * Returns all bookings, optionally filtered by status.
+     *
+     * @param status optional filter (PENDING, CONFIRMED, COMPLETED, CANCELLED); {@code null} returns all
+     * @return list of {@link CareBooking} instances
+     */
+    public List<CareBooking> findAll(String status) {
+        if (StringUtils.isNotBlank(status)) {
+            return jdbcTemplate.query("SELECT * FROM care_booking WHERE status = ?", rowMapper, status);
+        }
+        return jdbcTemplate.query("SELECT * FROM care_booking", rowMapper);
+    }
+
+    /**
      * Finds a single booking by ID, scoped to the owning user.
      *
      * @param id
