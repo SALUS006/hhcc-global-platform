@@ -24,13 +24,26 @@ INSERT IGNORE INTO pet_profile (id, user_id, pet_name, species, breed, age_years
 (2, 3, 'Whiskers', 'Cat', 'Persian', 5, 'Indoor only, sensitive to certain foods.', 3, 3);
 
 -- ============================================================
--- Mock Facilities (Multi-domain)
 -- ============================================================
 INSERT IGNORE INTO care_facility (id, facility_name, location_address, description, photo_url, supported_care_types, created_by, updated_by) VALUES
 (1, 'Sunshine Childcare Center', '100 Oak Lane, Metro City',  'Accredited childcare and after-school programs.',       '/assets/childcare.jpg', 'CHILDCARE',      1, 1),
 (2, 'Downtown Pet Care',         '123 Main St, Metro City',   'Premium pet daycare, grooming, and boarding.',          '/assets/petcare.jpg',   'PET',            1, 1),
 (3, 'Sunset Elderly Care',       '456 West Ave, Metro City',  'Compassionate community elderly care and assisted living.', '/assets/elderly.jpg', 'ELDERLY',        1, 1),
 (4, 'All-In-One Care Hub',       '789 Central Blvd, Metro City', 'Full-service center supporting childcare, pet, and elderly care.', '/assets/hub.jpg', 'CHILDCARE,PET,ELDERLY', 1, 1);
+
+-- ============================================================
+-- Mock Care Charges (per facility and supported care type)
+-- ============================================================
+-- Facility 1: CHILDCARE
+INSERT IGNORE INTO care_charges (care_facility_id, supported_care_type, amount) VALUES (1, 'CHILDCARE', 50.00);
+-- Facility 2: PET
+INSERT IGNORE INTO care_charges (care_facility_id, supported_care_type, amount) VALUES (2, 'PET', 60.00);
+-- Facility 3: ELDERLY
+INSERT IGNORE INTO care_charges (care_facility_id, supported_care_type, amount) VALUES (3, 'ELDERLY', 70.00);
+-- Facility 4: CHILDCARE, PET, ELDERLY
+INSERT IGNORE INTO care_charges (care_facility_id, supported_care_type, amount) VALUES (4, 'CHILDCARE', 50.00);
+INSERT IGNORE INTO care_charges (care_facility_id, supported_care_type, amount) VALUES (4, 'PET', 60.00);
+INSERT IGNORE INTO care_charges (care_facility_id, supported_care_type, amount) VALUES (4, 'ELDERLY', 70.00);
 
 -- ============================================================
 -- Mock Bookings (covers childcare, pet, and elderly use cases)
@@ -44,11 +57,11 @@ INSERT IGNORE INTO care_booking (id, user_id, facility_id, care_type, dependent_
 -- ============================================================
 -- Mock Invoices
 -- ============================================================
-INSERT IGNORE INTO payment_invoice (id, booking_id, amount, currency, payment_method, status, created_by, updated_by) VALUES
-(1, 1, 120.00, 'USD', 'MOCK', 'PAID',   2, 2),
-(2, 2,  80.00, 'USD', 'MOCK', 'UNPAID', 2, 2),
-(3, 3, 500.00, 'USD', 'MOCK', 'PAID',   3, 3),
-(4, 4,  75.00, 'USD', 'MOCK', 'UNPAID', 3, 3);
+INSERT IGNORE INTO payment_invoice (id, booking_id, amount, currency, payment_method, card_last4, card_expiry, cardholder_name, status, created_by, updated_by) VALUES
+(1, 1, 120.00, 'USD', 'MOCK', NULL, NULL, NULL, 'PAID',   2, 2),
+(2, 2,  80.00, 'USD', 'MOCK', NULL, NULL, NULL, 'UNPAID', 2, 2),
+(3, 3, 500.00, 'USD', 'MOCK', NULL, NULL, NULL, 'PAID',   3, 3),
+(4, 4,  75.00, 'USD', 'MOCK', NULL, NULL, NULL, 'UNPAID', 3, 3);
 
 -- ============================================================
 -- Mock Feedback

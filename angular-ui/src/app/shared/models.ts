@@ -60,5 +60,8 @@ export interface PaymentInvoice {
   currency: string;
   status: string;
   paymentDate?: string;
+  cardLast4?: string;
+  cardExpiry?: string;
+  cardholderName?: string;
   bookingDescription?: string;
 }

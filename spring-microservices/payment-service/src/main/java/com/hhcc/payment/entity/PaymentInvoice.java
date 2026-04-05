@@ -88,4 +88,19 @@ public class PaymentInvoice {
      * References {@code user_profile.id}.
      */
     private Long updatedBy;
+
+    /**
+     * Last 4 digits of card number (if paid by card).
+     */
+    private String cardLast4;
+
+    /**
+     * Card expiry in MM/YYYY (if paid by card).
+     */
+    private String cardExpiry;
+
+    /**
+     * Name on card (if paid by card).
+     */
+    private String cardholderName;
 }

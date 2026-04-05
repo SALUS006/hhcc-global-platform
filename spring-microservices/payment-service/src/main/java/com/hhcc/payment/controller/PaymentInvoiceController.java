@@ -2,6 +2,7 @@ package com.hhcc.payment.controller;
 
 import com.hhcc.payment.dto.PaymentInvoiceRequest;
 import com.hhcc.payment.dto.PaymentInvoiceResponse;
+import com.hhcc.payment.dto.CardPaymentRequest;
 import com.hhcc.payment.service.PaymentInvoiceService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -99,8 +100,8 @@ public class PaymentInvoiceController {
                 return ResponseEntity.badRequest().build();
             }
 
-            PaymentInvoiceResponse response = paymentInvoiceService.createAndProcessPayment(request);
-            
+            PaymentInvoiceResponse response = paymentInvoiceService.createInvoice(request);
+
             log.info("Payment invoice created successfully: {}", response.getId());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
@@ -128,20 +129,16 @@ public class PaymentInvoiceController {
      * 
      * @throws IllegalArgumentException if the invoice is not found
      */
-    @GetMapping("/invoices/{bookingId}")
-    public ResponseEntity<PaymentInvoiceResponse> getInvoiceByBookingId(
-            @PathVariable("bookingId") Long bookingId) {
-        
-        log.info("GET payment invoice request - bookingId: {}", bookingId);
-
+    @GetMapping("/invoices/{invoiceId}")
+    public ResponseEntity<PaymentInvoiceResponse> getInvoiceById(
+            @PathVariable("invoiceId") Long invoiceId) {
+        log.info("GET payment invoice request - invoiceId: {}", invoiceId);
         try {
-            PaymentInvoiceResponse response = paymentInvoiceService.getInvoiceByBookingId(bookingId);
-            
-            log.info("Payment invoice retrieved successfully for bookingId: {}", bookingId);
+            PaymentInvoiceResponse response = paymentInvoiceService.getInvoiceById(invoiceId);
+            log.info("Payment invoice retrieved successfully for invoiceId: {}", invoiceId);
             return ResponseEntity.ok(response);
-
         } catch (IllegalArgumentException e) {
-            log.warn("Invoice not found for bookingId: {}", bookingId);
+            log.warn("Invoice not found for invoiceId: {}", invoiceId);
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             log.error("Error retrieving payment invoice", e);
@@ -202,12 +199,11 @@ public class PaymentInvoiceController {
      */
     @PutMapping("/invoices/{id}/pay")
     public ResponseEntity<PaymentInvoiceResponse> payInvoice(
-            @PathVariable("id") Long id) {
-        
-        log.info("PAY payment invoice request - invoiceId: {}", id);
-
+            @PathVariable("id") Long id,
+            @RequestBody CardPaymentRequest cardPaymentRequest) {
+        log.info("PAY payment invoice request - invoiceId: {} method: {}", id, cardPaymentRequest.getPaymentMethod());
         try {
-            PaymentInvoiceResponse response = paymentInvoiceService.payInvoice(id);
+            PaymentInvoiceResponse response = paymentInvoiceService.payInvoice(id, cardPaymentRequest);
             return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.notFound().build();

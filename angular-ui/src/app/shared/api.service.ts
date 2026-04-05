@@ -83,8 +83,8 @@ export class ApiService {
   createPayment(invoice: PaymentInvoice): Observable<PaymentInvoice> {
     return this.http.post<PaymentInvoice>(`${this.baseUrl}/payments`, invoice);
   }
-  payInvoice(id: number): Observable<PaymentInvoice> {
-    return this.http.put<PaymentInvoice>(`${this.baseUrl}/payments/${id}/pay`, {});
+  payInvoice(id: number, payload: any): Observable<PaymentInvoice> {
+    return this.http.put<PaymentInvoice>(`${this.baseUrl}/payments/${id}/pay`, payload);
   }
 
   // ── Feedback ──
