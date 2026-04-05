@@ -39,7 +39,21 @@ export class PaymentCheckoutComponent implements OnInit {
   onPay() {
     if (!this.cardNumber || !this.expiry || !this.cvv || !this.holderName) return;
     if (this.invoice) {
-      this.api.payInvoice(this.invoice.id!).subscribe(() => {
+      // Format expiry to MM/YYYY if needed
+      let formattedExpiry = this.expiry.trim();
+      if (/^\d{2}\s*\/\s*\d{2}$/.test(formattedExpiry)) {
+        // Convert MM/YY to MM/YYYY
+        const [mm, yy] = formattedExpiry.split('/').map(s => s.trim());
+        formattedExpiry = `${mm}/${+yy < 100 ? '20' + yy : yy}`;
+      }
+      const payload = {
+        paymentMethod: 'CREDIT_CARD',
+        cardNumber: this.cardNumber,
+        cardExpiry: formattedExpiry,
+        cardCvv: this.cvv,
+        cardholderName: this.holderName
+      };
+      this.api.payInvoice(this.invoice.id!, payload).subscribe(() => {
         this.paid = true;
       });
     }

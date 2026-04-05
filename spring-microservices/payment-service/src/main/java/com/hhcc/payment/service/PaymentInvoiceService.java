@@ -2,6 +2,7 @@ package com.hhcc.payment.service;
 
 import com.hhcc.payment.dto.PaymentInvoiceRequest;
 import com.hhcc.payment.dto.PaymentInvoiceResponse;
+import com.hhcc.payment.dto.CardPaymentRequest;
 import com.hhcc.payment.entity.PaymentInvoice;
 import com.hhcc.payment.repository.PaymentInvoiceRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -25,6 +26,36 @@ import java.util.Optional;
 @Slf4j
 @Service
 public class PaymentInvoiceService {
+
+    /**
+     * Creates a payment invoice for a booking (status UNPAID).
+     *
+     * @param request the PaymentInvoiceRequest
+     * @return the created PaymentInvoiceResponse
+     */
+    public PaymentInvoiceResponse createInvoice(PaymentInvoiceRequest request) {
+        log.info("Creating payment invoice for booking: {}", request.getBookingId());
+
+        // Validate that the booking exists
+        if (!paymentInvoiceRepository.bookingExists(request.getBookingId())) {
+            log.warn("Booking not found: {}", request.getBookingId());
+            throw new IllegalArgumentException("Booking not found: " + request.getBookingId());
+        }
+
+        PaymentInvoice invoice = PaymentInvoice.builder()
+                .bookingId(request.getBookingId())
+                .amount(request.getAmount())
+                .currency(request.getCurrency() != null ? request.getCurrency() : "USD")
+                .paymentMethod(request.getPaymentMethod())
+                .status("UNPAID")
+                .createdBy(1L)
+                .updatedBy(1L)
+                .build();
+
+        PaymentInvoice savedInvoice = paymentInvoiceRepository.save(invoice);
+        log.info("Payment invoice created with ID: {}", savedInvoice.getId());
+        return mapToResponse(savedInvoice);
+    }
 
     private final PaymentInvoiceRepository paymentInvoiceRepository;
 
@@ -50,77 +81,21 @@ public class PaymentInvoiceService {
                 .toList();
     }
 
-    /**
-     * Creates and processes a payment invoice for a booking.
-     * 
-     * This method handles the creation of a payment invoice and immediately processes
-     * the payment if the payment method is MOCK (the only supported method in MVP).
-     * 
-     * Use Case: UC#9 (Make Payment)
-     * 
-     * @param request the PaymentInvoiceRequest containing payment details
-     * @return the PaymentInvoiceResponse containing the created invoice details
-     * @throws IllegalArgumentException if the booking does not exist or request data is invalid
-     */
-    public PaymentInvoiceResponse createAndProcessPayment(PaymentInvoiceRequest request) {
-        log.info("Creating and processing payment for booking: {}", request.getBookingId());
-        
-        // Validate that the booking exists
-        if (!paymentInvoiceRepository.bookingExists(request.getBookingId())) {
-            log.warn("Booking not found: {}", request.getBookingId());
-            throw new IllegalArgumentException("Booking not found: " + request.getBookingId());
-        }
-
-        // Create the payment invoice entity
-        PaymentInvoice invoice = PaymentInvoice.builder()
-                .bookingId(request.getBookingId())
-                .amount(request.getAmount())
-                .currency(request.getCurrency() != null ? request.getCurrency() : "USD")
-                .paymentMethod(request.getPaymentMethod() != null ? request.getPaymentMethod() : "MOCK")
-                .status("UNPAID")
-                .createdBy(1L) // System user
-                .updatedBy(1L) // System user
-                .build();
-
-        // Process the payment based on the payment method
-        if ("MOCK".equals(invoice.getPaymentMethod())) {
-            // Mock payment: immediately mark as PAID
-            invoice.setStatus("PAID");
-            invoice.setPaymentDate(LocalDateTime.now());
-            log.info("Mock payment processed for booking: {}", request.getBookingId());
-        } else if ("CREDIT_CARD".equals(invoice.getPaymentMethod()) || "PAYPAL".equals(invoice.getPaymentMethod())) {
-            // Real payment methods (post-MVP)
-            log.warn("Payment method {} is not yet supported in MVP", invoice.getPaymentMethod());
-            invoice.setStatus("UNPAID");
-        } else {
-            log.warn("Unknown payment method: {}", invoice.getPaymentMethod());
-            throw new IllegalArgumentException("Unknown payment method: " + invoice.getPaymentMethod());
-        }
-
-        // Save the invoice to the database
-        PaymentInvoice savedInvoice = paymentInvoiceRepository.save(invoice);
-        
-        log.info("Payment invoice created with ID: {}", savedInvoice.getId());
-        return mapToResponse(savedInvoice);
-    }
 
     /**
-     * Retrieves a payment invoice by its booking ID.
-     * 
-     * @param bookingId the ID of the booking for which to retrieve the invoice
+     * Retrieves a payment invoice by its invoice ID.
+     *
+     * @param invoiceId the ID of the invoice to retrieve
      * @return the PaymentInvoiceResponse if found
      * @throws IllegalArgumentException if the invoice is not found
      */
-    public PaymentInvoiceResponse getInvoiceByBookingId(Long bookingId) {
-        log.debug("Retrieving invoice for booking ID: {}", bookingId);
-        
-        Optional<PaymentInvoice> invoice = paymentInvoiceRepository.findByBookingId(bookingId);
-        
+    public PaymentInvoiceResponse getInvoiceById(Long invoiceId) {
+        log.debug("Retrieving invoice for invoice ID: {}", invoiceId);
+        Optional<PaymentInvoice> invoice = paymentInvoiceRepository.findById(invoiceId);
         if (invoice.isEmpty()) {
-            log.warn("Invoice not found for booking ID: {}", bookingId);
-            throw new IllegalArgumentException("Invoice not found for booking ID: " + bookingId);
+            log.warn("Invoice not found for invoice ID: {}", invoiceId);
+            throw new IllegalArgumentException("Invoice not found for invoice ID: " + invoiceId);
         }
-
         return mapToResponse(invoice.get());
     }
 
@@ -169,22 +144,31 @@ public class PaymentInvoiceService {
      * @param invoiceId the ID of the invoice to pay
      * @return the PaymentInvoiceResponse with updated status
      */
-    public PaymentInvoiceResponse payInvoice(Long invoiceId) {
-        log.info("Processing payment for invoice ID: {}", invoiceId);
-        
+    public PaymentInvoiceResponse payInvoice(Long invoiceId, CardPaymentRequest cardPaymentRequest) {
+        log.info("Processing payment for invoice ID: {} with method: {}", invoiceId, cardPaymentRequest.getPaymentMethod());
         Optional<PaymentInvoice> invoiceOpt = paymentInvoiceRepository.findById(invoiceId);
-        
         if (invoiceOpt.isEmpty()) {
             throw new IllegalArgumentException("Invoice not found: " + invoiceId);
         }
-
         PaymentInvoice invoice = invoiceOpt.get();
         invoice.setStatus("PAID");
         invoice.setPaymentDate(LocalDateTime.now());
         invoice.setUpdatedBy(1L);
-        
+        if ("CREDIT_CARD".equalsIgnoreCase(cardPaymentRequest.getPaymentMethod())) {
+            String cardNumber = cardPaymentRequest.getCardNumber();
+            String last4 = (cardNumber != null && cardNumber.length() >= 4) ? cardNumber.substring(cardNumber.length() - 4) : null;
+            invoice.setPaymentMethod("CREDIT_CARD");
+            invoice.setCardLast4(last4);
+            invoice.setCardExpiry(cardPaymentRequest.getCardExpiry());
+            invoice.setCardholderName(cardPaymentRequest.getCardholderName());
+        } else {
+            // For MOCK or other methods, clear card fields
+            invoice.setPaymentMethod(cardPaymentRequest.getPaymentMethod());
+            invoice.setCardLast4(null);
+            invoice.setCardExpiry(null);
+            invoice.setCardholderName(null);
+        }
         PaymentInvoice updatedInvoice = paymentInvoiceRepository.update(invoice);
-        
         log.info("Invoice paid successfully: {}", invoiceId);
         return mapToResponse(updatedInvoice);
     }
@@ -197,15 +181,18 @@ public class PaymentInvoiceService {
      */
     private PaymentInvoiceResponse mapToResponse(PaymentInvoice invoice) {
         return PaymentInvoiceResponse.builder()
-                .id(invoice.getId())
-                .bookingId(invoice.getBookingId())
-                .amount(invoice.getAmount())
-                .currency(invoice.getCurrency())
-                .paymentDate(invoice.getPaymentDate())
-                .paymentMethod(invoice.getPaymentMethod())
-                .status(invoice.getStatus())
-                .createdDt(invoice.getCreatedDt())
-                .updatedDt(invoice.getUpdatedDt())
-                .build();
+            .id(invoice.getId())
+            .bookingId(invoice.getBookingId())
+            .amount(invoice.getAmount())
+            .currency(invoice.getCurrency())
+            .paymentDate(invoice.getPaymentDate())
+            .paymentMethod(invoice.getPaymentMethod())
+            .status(invoice.getStatus())
+            .createdDt(invoice.getCreatedDt())
+            .updatedDt(invoice.getUpdatedDt())
+            .cardLast4(invoice.getCardLast4())
+            .cardExpiry(invoice.getCardExpiry())
+            .cardholderName(invoice.getCardholderName())
+            .build();
     }
 }

@@ -83,4 +83,22 @@ public class PaymentInvoiceResponse {
      */
     @JsonProperty("updatedDt")
     private LocalDateTime updatedDt;
+
+        /**
+         * Last 4 digits of card number (if paid by card).
+         */
+        @JsonProperty("cardLast4")
+        private String cardLast4;
+
+        /**
+         * Card expiry in MM/YYYY (if paid by card).
+         */
+        @JsonProperty("cardExpiry")
+        private String cardExpiry;
+
+        /**
+         * Name on card (if paid by card).
+         */
+        @JsonProperty("cardholderName")
+        private String cardholderName;
 }

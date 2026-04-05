@@ -17,6 +17,43 @@ servers:
 # PATHS
 # ─────────────────────────────────────────────────────────────
 paths:
+  /payment/invoices/{id}/pay:
+    put:
+      tags: [Invoices]
+      summary: Pay an invoice using a card
+      description: >
+        Processes payment for an invoice. For CREDIT_CARD, card details are required in the request body. Only card_last4, card_expiry, and cardholder_name are stored; CVV is never stored for PCI compliance.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the invoice to pay
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardPaymentRequest'
+            example:
+              paymentMethod: CREDIT_CARD
+              cardNumber: '4242424242424242'
+              cardExpiry: '12/2030'
+              cardCvv: '123'
+              cardholderName: 'Jane Doe'
+      responses:
+        '200':
+          description: Invoice paid successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInvoice'
+        '400':
+          description: Invalid request payload or payment failed
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   # ── Health ──────────────────────────────────────────────────
   /payment/health:
@@ -81,15 +118,17 @@ paths:
         '404':
           description: Booking not found
 
-  /payment/invoices/{bookingId}:
+  /payment/invoices/{id}:
     get:
       tags: [Invoices]
-      summary: Get the payment invoice for a booking (UC#9)
+      summary: Get a payment invoice by invoice ID
+      description: >
+        Retrieves a payment invoice using its unique invoice ID.
       parameters:
-        - name: bookingId
+        - name: id
           in: path
           required: true
-          description: ID of the care booking to retrieve the invoice for
+          description: ID of the invoice to retrieve
           schema:
             type: integer
             format: int64
@@ -141,6 +180,34 @@ components:
             error: "Not Found"
 
   schemas:
+
+    CardPaymentRequest:
+      type: object
+      required: [paymentMethod, cardNumber, cardExpiry, cardCvv, cardholderName]
+      properties:
+        paymentMethod:
+          type: string
+          enum: [CREDIT_CARD]
+          description: Must be CREDIT_CARD for card payments
+        cardNumber:
+          type: string
+          minLength: 12
+          maxLength: 19
+          description: Full card number (only last4 stored)
+        cardExpiry:
+          type: string
+          pattern: '^(0[1-9]|1[0-2])/20[0-9]{2}$'
+          example: '12/2030'
+          description: Card expiry in MM/YYYY
+        cardCvv:
+          type: string
+          minLength: 3
+          maxLength: 4
+          description: Card CVV (never stored)
+        cardholderName:
+          type: string
+          maxLength: 100
+          description: Name on card
 
     HealthResponse:
       type: object
@@ -195,6 +262,18 @@ components:
         paymentMethod:
           type: string
           enum: [MOCK, CREDIT_CARD, PAYPAL]
+        cardLast4:
+          type: string
+          maxLength: 4
+          description: Last 4 digits of card number (if paid by card)
+        cardExpiry:
+          type: string
+          example: '12/2030'
+          description: Card expiry in MM/YYYY (if paid by card)
+        cardholderName:
+          type: string
+          maxLength: 100
+          description: Name on card (if paid by card)
         status:
           type: string
           enum: [UNPAID, PAID, REFUNDED]

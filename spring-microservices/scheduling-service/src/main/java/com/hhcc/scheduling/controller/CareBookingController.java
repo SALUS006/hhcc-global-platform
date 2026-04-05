@@ -2,6 +2,9 @@ package com.hhcc.scheduling.controller;
 
 import com.hhcc.scheduling.model.CareBooking;
 import com.hhcc.scheduling.repository.CareBookingRepository;
+import com.hhcc.scheduling.repository.CareChargesRepository;
+import com.hhcc.scheduling.client.PaymentServiceClient;
+import com.hhcc.scheduling.dto.PaymentInvoiceRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,9 +47,13 @@ import java.util.List;
 public class CareBookingController {
 
     private final CareBookingRepository repository;
+    private final PaymentServiceClient paymentServiceClient;
+    private final CareChargesRepository careChargesRepository;
 
-    public CareBookingController(CareBookingRepository repository) {
+    public CareBookingController(CareBookingRepository repository, PaymentServiceClient paymentServiceClient, CareChargesRepository careChargesRepository) {
         this.repository = repository;
+        this.paymentServiceClient = paymentServiceClient;
+        this.careChargesRepository = careChargesRepository;
     }
 
     /**
@@ -64,7 +71,25 @@ public class CareBookingController {
         booking.setCreatedBy(booking.getUserId());
         booking.setUpdatedBy(booking.getUserId());
         booking.setStatus("PENDING");
-        return repository.save(booking);
+        CareBooking savedBooking = repository.save(booking);
+
+        // Retrieve charge and submit invoice for payment after booking is created
+        try {
+            // Fetch the charge for this facility and care type
+            java.math.BigDecimal charge = careChargesRepository.findCharge(savedBooking.getFacilityId(), savedBooking.getCareType());
+            PaymentInvoiceRequest invoiceRequest = PaymentInvoiceRequest.builder()
+                .bookingId(savedBooking.getId())
+                .amount(charge)
+                .currency("USD")
+                .build();
+            paymentServiceClient.createPaymentInvoice(invoiceRequest);
+            log.info("Payment invoice submitted for bookingId={} with amount {}", savedBooking.getId(), charge);
+        } catch (Exception e) {
+            log.error("Failed to submit payment invoice for bookingId={}", savedBooking.getId(), e);
+        }
+
+
+        return savedBooking;
     }
 
     /**

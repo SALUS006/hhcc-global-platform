@@ -33,19 +33,22 @@ public class PaymentInvoiceRepository {
     /**
      * RowMapper for mapping database result sets to PaymentInvoice entity objects.
      */
-    private static final RowMapper<PaymentInvoice> ROW_MAPPER = (rs, rowNum) -> PaymentInvoice.builder()
+        private static final RowMapper<PaymentInvoice> ROW_MAPPER = (rs, rowNum) -> PaymentInvoice.builder()
             .id(rs.getLong("id"))
             .bookingId(rs.getLong("booking_id"))
             .amount(rs.getBigDecimal("amount"))
             .currency(rs.getString("currency"))
             .paymentDate(rs.getTimestamp("payment_date") != null ? 
-                    rs.getTimestamp("payment_date").toLocalDateTime() : null)
+                rs.getTimestamp("payment_date").toLocalDateTime() : null)
             .paymentMethod(rs.getString("payment_method"))
             .status(rs.getString("status"))
             .createdDt(rs.getTimestamp("created_dt").toLocalDateTime())
             .createdBy(rs.getLong("created_by"))
             .updatedDt(rs.getTimestamp("updated_dt").toLocalDateTime())
             .updatedBy(rs.getLong("updated_by"))
+            .cardLast4(rs.getString("card_last4"))
+            .cardExpiry(rs.getString("card_expiry"))
+            .cardholderName(rs.getString("cardholder_name"))
             .build();
 
     /**
@@ -80,8 +83,8 @@ public class PaymentInvoiceRepository {
         log.debug("Saving payment invoice for booking: {}", invoice.getBookingId());
         
         String sql = "INSERT INTO payment_invoice " +
-                "(booking_id, amount, currency, payment_date, payment_method, status, created_by, updated_by) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            "(booking_id, amount, currency, payment_date, payment_method, card_last4, card_expiry, cardholder_name, status, created_by, updated_by) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         
@@ -91,11 +94,14 @@ public class PaymentInvoiceRepository {
             ps.setBigDecimal(2, invoice.getAmount());
             ps.setString(3, invoice.getCurrency());
             ps.setTimestamp(4, invoice.getPaymentDate() != null ? 
-                    java.sql.Timestamp.valueOf(invoice.getPaymentDate()) : null);
+                java.sql.Timestamp.valueOf(invoice.getPaymentDate()) : null);
             ps.setString(5, invoice.getPaymentMethod());
-            ps.setString(6, invoice.getStatus());
-            ps.setObject(7, invoice.getCreatedBy());
-            ps.setObject(8, invoice.getUpdatedBy());
+            ps.setString(6, invoice.getCardLast4());
+            ps.setString(7, invoice.getCardExpiry());
+            ps.setString(8, invoice.getCardholderName());
+            ps.setString(9, invoice.getStatus());
+            ps.setObject(10, invoice.getCreatedBy());
+            ps.setObject(11, invoice.getUpdatedBy());
             return ps;
         }, keyHolder);
 
@@ -159,20 +165,23 @@ public class PaymentInvoiceRepository {
         log.debug("Updating payment invoice with ID: {}", invoice.getId());
         
         String sql = "UPDATE payment_invoice SET " +
-                "booking_id = ?, amount = ?, currency = ?, payment_date = ?, " +
-                "payment_method = ?, status = ?, updated_by = ? " +
-                "WHERE id = ?";
+            "booking_id = ?, amount = ?, currency = ?, payment_date = ?, " +
+            "payment_method = ?, card_last4 = ?, card_expiry = ?, cardholder_name = ?, status = ?, updated_by = ? " +
+            "WHERE id = ?";
 
         jdbcTemplate.update(sql,
-                invoice.getBookingId(),
-                invoice.getAmount(),
-                invoice.getCurrency(),
-                invoice.getPaymentDate() != null ? 
-                        java.sql.Timestamp.valueOf(invoice.getPaymentDate()) : null,
-                invoice.getPaymentMethod(),
-                invoice.getStatus(),
-                invoice.getUpdatedBy(),
-                invoice.getId());
+            invoice.getBookingId(),
+            invoice.getAmount(),
+            invoice.getCurrency(),
+            invoice.getPaymentDate() != null ? 
+                java.sql.Timestamp.valueOf(invoice.getPaymentDate()) : null,
+            invoice.getPaymentMethod(),
+            invoice.getCardLast4(),
+            invoice.getCardExpiry(),
+            invoice.getCardholderName(),
+            invoice.getStatus(),
+            invoice.getUpdatedBy(),
+            invoice.getId());
         
         log.info("Payment invoice updated with ID: {}", invoice.getId());
         return invoice;

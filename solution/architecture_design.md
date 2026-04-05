@@ -256,6 +256,13 @@ erDiagram
         long updated_by FK
     }
 
+    care_charges {
+      long id PK
+      long care_facility_id FK "References care_facility"
+      string supported_care_type "CHILDCARE, PET, ELDERLY"
+      decimal amount
+    }
+
     care_booking {
         long id PK
         long user_id FK "References user_profile (account owner)"
@@ -283,6 +290,9 @@ erDiagram
         string currency "USD, EUR, GBP"
         timestamp payment_date
         string payment_method "MOCK, CREDIT_CARD, PAYPAL"
+        string card_last4 "Last 4 digits of card number"
+        string card_expiry "MM/YYYY"
+        string cardholder_name "Name on card"
         string status "UNPAID, PAID, REFUNDED"
         timestamp created_dt
         long created_by FK
@@ -328,10 +338,12 @@ erDiagram
     user_profile ||--o{ user_feedback : "submits"
     user_profile ||--o{ service_notification : "receives"
     care_facility ||--o{ care_booking : "hosts"
+    care_facility ||--o{ care_charges : "sets charges for"
     care_facility ||--o{ user_feedback : "receives"
     care_booking ||--o| payment_invoice : "generates"
     care_booking ||--o{ user_feedback : "linked to"
 ```
+
 
 ### 7.1 Table Ownership by Microservice
 
@@ -341,12 +353,16 @@ erDiagram
 | `family_member` | Profile & Identity Service (MS1) | Child / elderly dependents per account |
 | `pet_profile` | Profile & Identity Service (MS1) | Pet dependents per account |
 | `care_facility` | Facility & Scheduling Service (MS2) | Care center catalog |
+| `care_charges` | Facility & Scheduling Service (MS2) | Charge per care type per facility |
 | `care_booking` | Facility & Scheduling Service (MS2) | Unified booking for all dependent types |
-| `payment_invoice` | Payment Service (MS3) | Invoice per booking |
+| `payment_invoice` | Payment Service (MS3) | Invoice per booking. Card payments: `card_last4`, `card_expiry`, `cardholder_name` (CVV never stored). |
 | `user_feedback` | Profile & Identity Service (MS1) | Ratings, comments, support requests |
 | `service_notification` | Profile & Identity Service (MS1) | Email/SMS event log — MVP via Spring Mail |
 
-### 7.2 Key Design Decisions
+
+### 7.1.1 care_charges Table
+
+The `care_charges` table stores the price for each supported care type (CHILDCARE, PET, ELDERLY) per facility. This enables flexible pricing and easy lookup of the correct charge when creating a booking or payment invoice. It is linked to `care_facility` via a foreign key and populated for each supported care type per facility.
 
 - **`care_booking.dependent_type` + `dependent_id`**: A lightweight polymorphic pattern avoiding separate booking tables per dependent category. MS2 resolves the `dependent_id` to `family_member` or `pet_profile` based on `dependent_type` at the application layer.
 - **`care_booking.care_type`**: Discriminates the service line (Childcare / Pet / Elderly) independently of the dependent, enabling per-service-line business reporting.

@@ -129,9 +129,13 @@ All endpoints are exposed through the respective Spring Boot service. The Node.j
 |--------|----------|-------------|----|---------|
 | `GET` | `/api/v1/payment/health` | Health check | — | ✅ Live |
 | `GET` | `/api/v1/payment/invoices` | List all invoices | UC#9 | ✅ Live |
-| `GET` | `/api/v1/payment/invoices/{bookingId}` | Get invoice for a booking | UC#9 | ✅ Live |
+| `GET` | `/api/v1/payment/invoices/{id}` | Get invoice by invoice ID | UC#9 | ✅ Live |
 | `POST` | `/api/v1/payment/invoices` | Submit a payment (mock) | UC#9 | ✅ Live |
 | `PUT` | `/api/v1/payment/invoices/{id}/pay` | Mark invoice as paid | UC#9 | ✅ Live |
+| `PUT` | `/api/v1/payment/invoices/{id}/pay` | Pay invoice (card support) | UC#9 | ✅ Live |
+
+#### Card Payment Flow (2026-04)
+- The `/payment/invoices/{id}/pay` endpoint now supports card payments. The frontend collects card number, expiry, CVV, and cardholder name, and sends them in the request body. Only the last 4 digits, expiry, and cardholder name are stored; CVV is never persisted.
 | `POST` | `/api/v1/payment/invoices/{id}/refund` | Refund invoice | UC#9 | ✅ Live |
 
 ## ⚖️ Team Governance Policies

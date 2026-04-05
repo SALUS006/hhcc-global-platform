@@ -1,3 +1,5 @@
+
+
 CREATE DATABASE IF NOT EXISTS hhcc_db;
 USE hhcc_db;
 
@@ -62,6 +64,7 @@ CREATE TABLE IF NOT EXISTS pet_profile (
     FOREIGN KEY (updated_by) REFERENCES user_profile(id)
 );
 
+
 -- ============================================================
 -- TABLE: care_facility
 -- Owner: Facility & Scheduling Service (MS2)
@@ -80,6 +83,19 @@ CREATE TABLE IF NOT EXISTS care_facility (
     updated_by           BIGINT,
     FOREIGN KEY (created_by) REFERENCES user_profile(id),
     FOREIGN KEY (updated_by) REFERENCES user_profile(id)
+);
+
+-- ============================================================
+-- TABLE: care_charges
+-- Owner: Facility & Scheduling Service (MS2)
+-- Purpose: Stores charge amount for each care type per facility
+-- ============================================================
+CREATE TABLE IF NOT EXISTS care_charges (
+    id                BIGINT AUTO_INCREMENT PRIMARY KEY,
+    care_facility_id  BIGINT NOT NULL,
+    supported_care_type VARCHAR(50) NOT NULL COMMENT 'CHILDCARE, PET, ELDERLY',
+    amount            DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (care_facility_id) REFERENCES care_facility(id)
 );
 
 -- ============================================================
@@ -120,6 +136,9 @@ CREATE TABLE IF NOT EXISTS payment_invoice (
     currency       VARCHAR(10) DEFAULT 'USD',
     payment_date   TIMESTAMP NULL,
     payment_method VARCHAR(50) DEFAULT 'MOCK' COMMENT 'MOCK, CREDIT_CARD, PAYPAL',
+    card_last4     VARCHAR(4) COMMENT 'Last 4 digits of card number',
+    card_expiry    VARCHAR(7) COMMENT 'MM/YYYY',
+    cardholder_name VARCHAR(100) COMMENT 'Name on card',
     status         VARCHAR(50) DEFAULT 'UNPAID' COMMENT 'UNPAID, PAID, REFUNDED',
     created_dt     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_by     BIGINT,

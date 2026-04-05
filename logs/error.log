@@ -1,0 +1,4 @@
+2026/04/03 16:39:12 [emerg] 39464#14016: "server" directive is not allowed here in C:\work\ai-use-case\hhcc-global-platform\angular-ui\nginx.conf:1
+2026/04/03 16:43:00 [emerg] 22192#11684: host not found in upstream "node-orchestrator" in C:\work\ai-use-case\hhcc-global-platform\angular-ui\nginx.conf:21
+2026/04/03 16:44:47 [emerg] 19204#36836: CreateDirectory() "C:\work\ai-use-case\hhcc-global-platform/temp/client_body_temp" failed (3: The system cannot find the path specified)
+2026/04/03 16:46:11 [emerg] 39032#41592: bind() to 0.0.0.0:80 failed (10013: An attempt was made to access a socket in a way forbidden by its access permissions)

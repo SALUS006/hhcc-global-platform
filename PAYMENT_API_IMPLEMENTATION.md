@@ -12,6 +12,28 @@ All APIs from `swagger-payment.yaml` have been fully implemented with comprehens
 ---
 
 ## Implemented APIs
+---
+
+### 3. Card Payment Support (2026-04)
+**Endpoints**: `PUT /payment/invoices/{id}/pay`
+- **Purpose**: Allows users to pay invoices using card details (card number, expiry, CVV, cardholder name).
+- **Request Model**: `CardPaymentRequest`
+  ```json
+  {
+    "paymentMethod": "CREDIT_CARD",
+    "cardNumber": "4242424242424242",
+    "cardExpiry": "12/2030",
+    "cardCvv": "123",
+    "cardholderName": "Jane Doe"
+  }
+  ```
+- **Persistence**: Only `cardLast4`, `cardExpiry`, and `cardholderName` are stored in the database. CVV is never stored for PCI compliance.
+- **Response Model**: `PaymentInvoiceResponse` includes new fields:
+  - `cardLast4`: Last 4 digits of card number
+  - `cardExpiry`: Card expiry (MM/YYYY)
+  - `cardholderName`: Name on card
+
+---
 
 ### 1. Health Check Endpoint
 **Controller**: `HealthController.java`
@@ -41,7 +63,7 @@ All APIs from `swagger-payment.yaml` have been fully implemented with comprehens
 - **Request Model**: `PaymentInvoiceRequest`
   ```json
   {
-    "bookingId": 1,
+    "id": 1,
     "amount": 120.00,
     "currency": "USD",
     "paymentMethod": "MOCK"
@@ -51,7 +73,7 @@ All APIs from `swagger-payment.yaml` have been fully implemented with comprehens
   ```json
   {
     "id": 1,
-    "bookingId": 1,
+    "id": 1,
     "amount": 120.00,
     "currency": "USD",
     "paymentDate": "2026-03-31T10:30:00",
@@ -70,11 +92,11 @@ All APIs from `swagger-payment.yaml` have been fully implemented with comprehens
   - In MVP, all payments use MOCK method and are immediately processed to PAID status
   - Real gateway integration (Stripe/PayPal) is post-MVP
 
-#### GET /payment/invoices/{bookingId}
-- **Method**: `PaymentInvoiceController.getInvoiceByBookingId()`
+#### GET /payment/invoices/{id}
+- **Method**: `PaymentInvoiceController.getInvoiceById()`
 - **Purpose**: Get the payment invoice for a booking (UC#9)
 - **Path Parameters**: 
-  - `bookingId` (Long): ID of the care booking
+  - `id` (Long): ID of the invoice
 - **Response Model**: `PaymentInvoiceResponse`
 - **Responses**:
   - `200 OK`: Invoice found
@@ -124,14 +146,23 @@ payment-service/
 ## Data Models
 
 ### PaymentInvoiceRequest (DTO)
-- **bookingId** (Long, required): References care_booking.id
+### CardPaymentRequest (DTO)
+- **paymentMethod** (String, required): Must be `CREDIT_CARD` for card payments
+- **cardNumber** (String, required): Full card number (only last4 stored)
+- **cardExpiry** (String, required): MM/YYYY
+- **cardCvv** (String, required): Card CVV (never stored)
+- **cardholderName** (String, required): Name on card
+- **id** (Long, required): Invoice ID
 - **amount** (BigDecimal, required): Payment amount (e.g., 120.00)
 - **currency** (String, optional): ISO 4217 code, default "USD"
 - **paymentMethod** (String, optional): MOCK | CREDIT_CARD | PAYPAL, default "MOCK"
 
 ### PaymentInvoiceResponse (DTO)
+- **cardLast4** (String, optional): Last 4 digits of card (if paid by card)
+- **cardExpiry** (String, optional): Card expiry (if paid by card)
+- **cardholderName** (String, optional): Name on card (if paid by card)
 - **id** (Long): Invoice ID
-- **bookingId** (Long): Booking reference
+- **id** (Long): Invoice reference
 - **amount** (BigDecimal): Payment amount
 - **currency** (String): ISO 4217 code
 - **paymentDate** (LocalDateTime): When payment was processed
@@ -160,7 +191,7 @@ Handles business logic including:
 - For CREDIT_CARD/PAYPAL: marked as UNPAID (not yet supported)
 - Saves to database and returns response
 
-#### getInvoiceByBookingId()
+#### getInvoiceById()
 - Retrieves invoice by booking ID
 - Throws exception if not found
 
@@ -184,7 +215,7 @@ Handles database operations using JdbcTemplate:
 #### findById(Long)
 - Returns Optional<PaymentInvoice> by invoice ID
 
-#### findByBookingId(Long)
+#### findById(Long)
 - Returns Optional<PaymentInvoice> by booking ID
 
 #### update(PaymentInvoice)

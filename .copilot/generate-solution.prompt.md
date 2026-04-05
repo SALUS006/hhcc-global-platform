@@ -20,11 +20,12 @@ Please strictly adhere to the following explicit constraints and formatting:
    - Primary Keys (`id`) must translate to `long` (BIGINT in SQL).
    - Every single schema table MUST include mandatory audit fields: `created_dt`, `updated_dt`, `created_by` (mapping to user ID), and `updated_by`. Exception: `service_notification` requires only `created_dt`.
 
-3. **Full Database Schema — 8 Required Tables:**
+3. **Full Database Schema — 9 Required Tables:**
    - **`user_profile`** (MS1): Core identity, role (ADMIN/CUSTOMER/STAFF), password_hash.
    - **`family_member`** (MS1): Dependent linked to user_profile — supports CHILDCARE and ELDERLY care_type values.
    - **`pet_profile`** (MS1): Pet linked to user_profile — species, breed, medical_notes.
    - **`care_facility`** (MS2): Care center catalog with `supported_care_types` (CHILDCARE, PET, ELDERLY).
+   - **`care_charges`** (MS2): Charge per care type per facility. Links to `care_facility` and stores amount for each supported care type (CHILDCARE, PET, ELDERLY).
    - **`care_booking`** (MS2): Unified booking table. Must include `care_type` (CHILDCARE/PET/ELDERLY), `dependent_type` (FAMILY_MEMBER/PET), and `dependent_id` (polymorphic FK to family_member.id or pet_profile.id).
    - **`payment_invoice`** (MS3): Invoice per booking with `payment_method` (MOCK/CREDIT_CARD/PAYPAL).
    - **`user_feedback`** (MS1): User ratings and support requests — `user_id` is NULLABLE to support guest/unregistered feedback.
@@ -48,4 +49,4 @@ Please strictly adhere to the following explicit constraints and formatting:
    - **Exclusive Database Authority**: Sandeep and Naveen explicitly own ALL database conceptual design, relationship modeling, and SQL DDL generation on Day 1. Naga and the Full-Stack teams strictly inherit and consume these precise pre-generated tables.
    - **QA/Integration Owner**: Akhil is OOO for Days 1-4; configure his capacity to execute solely upon his return on Day 5 to review Copilot Unit Tests and squash deployment bugs.
 
-Format the output artifact as an immaculate Markdown document. Include detailed Mermaid.js diagrams mapping the Component Interaction Architecture and the Database Entity-Relationship (ER) model with all 8 tables and their relationships. Finally, append a mono-repo Directory Structure tree outlining precisely where each of the 7 developers will store their partitioned code.
+Format the output artifact as an immaculate Markdown document. Include detailed Mermaid.js diagrams mapping the Component Interaction Architecture and the Database Entity-Relationship (ER) model with all 9 tables and their relationships (including care_charges). Finally, append a mono-repo Directory Structure tree outlining precisely where each of the 7 developers will store their partitioned code.
