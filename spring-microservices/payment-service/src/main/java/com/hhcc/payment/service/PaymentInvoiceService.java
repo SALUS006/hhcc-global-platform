@@ -169,6 +169,13 @@ public class PaymentInvoiceService {
             invoice.setCardholderName(null);
         }
         PaymentInvoice updatedInvoice = paymentInvoiceRepository.update(invoice);
+        // Set booking status to CONFIRMED after successful payment
+        int rows = paymentInvoiceRepository.updateBookingStatus(invoice.getBookingId(), "CONFIRMED");
+        if (rows > 0) {
+            log.info("Booking status set to CONFIRMED for bookingId: {}", invoice.getBookingId());
+        } else {
+            log.warn("Failed to update booking status to CONFIRMED for bookingId: {}", invoice.getBookingId());
+        }
         log.info("Invoice paid successfully: {}", invoiceId);
         return mapToResponse(updatedInvoice);
     }

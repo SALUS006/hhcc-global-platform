@@ -61,6 +61,18 @@ public class PaymentInvoiceRepository {
     }
 
     /**
+     * Updates the status of a care booking by its ID.
+     * @param bookingId the ID of the booking to update
+     * @param status the new status (e.g., CONFIRMED)
+     * @return number of rows updated
+     */
+    public int updateBookingStatus(Long bookingId, String status) {
+        log.info("Updating booking status: bookingId={}, status={}", bookingId, status);
+        String sql = "UPDATE care_booking SET status = ? WHERE id = ?";
+        return jdbcTemplate.update(sql, status, bookingId);
+    }
+
+    /**
      * Retrieves all payment invoices ordered by most recent first.
      * 
      * @return a list of all PaymentInvoice entities
